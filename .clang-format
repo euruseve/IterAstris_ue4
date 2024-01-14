@@ -1,0 +1,9 @@
+Language: Cpp
+BasedOnStyle: Microsoft
+AccessModifierOffset: '-4'
+BreakBeforeBraces: Allman
+SortIncludes: false
+AllowShortBlocksOnASingleLine: false
+AlignAfterOpenBracket: DontAlign
+AllowShortFunctionsOnASingleLine: Inline
+PointerAlignment: Left
