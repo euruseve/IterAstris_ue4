@@ -18,8 +18,10 @@ AIABaseCharacter::AIABaseCharacter()
     // bUseControllerRotationYaw = false;
     // GetCharacterMovement()->bOrientRotationToMovement = true;
 
-    BaseTurnRate = 45.f;
     CameraView = ECameraView::ThirdPersonView;
+    BaseTurnRate = 45.f;
+    DefaultTargetArmLenght = 300.f;
+    CurrentTargetArmLenght = DefaultTargetArmLenght;
 
     // TODO взнати що воно робить
     // GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
@@ -29,6 +31,7 @@ AIABaseCharacter::AIABaseCharacter()
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
     SpringArmComponent->bUsePawnControlRotation = true;
+    SpringArmComponent->TargetArmLength = DefaultTargetArmLenght;
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
@@ -52,7 +55,9 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
     PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
-    PlayerInputComponent->BindAction("ChangeCameraView", IE_Pressed, this, &AIABaseCharacter::SwitchCameraView);
+    PlayerInputComponent->BindAction("ChangeCameraView", IE_Pressed, this, &AIABaseCharacter::ChangeCameraView);
+
+    PlayerInputComponent->BindAxis("CameraZoom", this, &AIABaseCharacter::CameraZoom);
 
     PlayerInputComponent->BindAxis("MoveForward", this, &AIABaseCharacter::MoveForward);
     PlayerInputComponent->BindAxis("MoveRight", this, &AIABaseCharacter::MoveRight);
@@ -64,7 +69,7 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAxis("TurnAroundRate", this, &AIABaseCharacter::TurnAroundRate);
 }
 
-void AIABaseCharacter::MoveForward(float Amount)
+void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType)
 {
     if (Controller && (Amount != 0.f))
     {
@@ -72,46 +77,46 @@ void AIABaseCharacter::MoveForward(float Amount)
         {
             const FRotator Rotation = Controller->GetControlRotation();
             const FRotator YawRotation(0, Rotation.Yaw, 0);
-            const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+            const FVector MovementDirection = FRotationMatrix(YawRotation).GetUnitAxis(AxisType);
 
-            AddMovementInput(Direction, Amount);
+            AddMovementInput(MovementDirection, Amount);
         }
         else if (CameraView == ECameraView::FirstPersonView)
         {
-            AddMovementInput(GetActorForwardVector(), Amount);
+            if (Direction == FVector::ForwardVector)
+                AddMovementInput(GetActorForwardVector(), Amount);
+            else if (Direction == FVector::RightVector)
+                AddMovementInput(GetActorRightVector(), Amount);
         }
     }
+}
+
+void AIABaseCharacter::MoveForward(float Amount)
+{
+    Move(Amount, FVector::ForwardVector, EAxis::X);
 }
 
 void AIABaseCharacter::MoveRight(float Amount)
 {
-    if (Controller && (Amount != 0.f))
-    {
-        if (CameraView == ECameraView::ThirdPersonView)
-        {
-            const FRotator Rotation = Controller->GetControlRotation();
-            const FRotator YawRotation(0, Rotation.Yaw, 0);
-            const FVector Direction = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-
-            AddMovementInput(Direction, Amount);
-        }
-        else if (CameraView == ECameraView::FirstPersonView)
-        {
-            AddMovementInput(GetActorRightVector(), Amount);
-        }
-    }
+    Move(Amount, FVector::RightVector, EAxis::Y);
 }
 
 void AIABaseCharacter::LookUp(float Amount)
 {
-    SetCameraViewSettings(CameraView);
+    SetCameraViewSettings();
 
     AddControllerPitchInput(Amount);
 }
 
+void AIABaseCharacter::LookUpRate(float Rate)
+{
+    if (CameraView == ECameraView::ThirdPersonView)
+        AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
 void AIABaseCharacter::TurnAround(float Amount)
 {
-    SetCameraViewSettings(CameraView);
+    SetCameraViewSettings();
 
     AddControllerYawInput(Amount);
 }
@@ -122,44 +127,66 @@ void AIABaseCharacter::TurnAroundRate(float Rate)
         AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
-void AIABaseCharacter::LookUpRate(float Rate)
+void AIABaseCharacter::CameraZoom(float Amount)
 {
     if (CameraView == ECameraView::ThirdPersonView)
-        AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+    {
+        float ZoomLenght = SpringArmComponent->TargetArmLength + (Amount * -10);
+        CurrentTargetArmLenght = FMath::Clamp(ZoomLenght, 199.f, 500.f);
+        SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
+
+        if (CurrentTargetArmLenght < 200.f)
+        {
+            CurrentTargetArmLenght = DefaultTargetArmLenght;
+            FullCameraSettingsReset();
+        }
+    }
+    else if (CameraView == ECameraView::FirstPersonView)
+    {
+        if (Amount < 0)
+        {
+            CurrentTargetArmLenght = 200.f;
+            SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
+
+            FullCameraSettingsReset();
+        }
+    }
 }
 
-void AIABaseCharacter::SwitchCameraView()
+void AIABaseCharacter::ChangeCameraView()
 {
-    switch (CameraView)
+    if (CameraView == ECameraView::FirstPersonView)
     {
-    case ECameraView::FirstPersonView:
         CameraView = ECameraView::ThirdPersonView;
-        SpringArmComponent->TargetArmLength = 300;
+        SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
         UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to TP"));
-        break;
-
-    case ECameraView::ThirdPersonView:
+    }
+    else if (CameraView == ECameraView::ThirdPersonView)
+    {
         CameraView = ECameraView::FirstPersonView;
         SpringArmComponent->TargetArmLength = 0;
         UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to FP"));
-        break;
-
-    default:
-        UE_LOG(LogBaseCharacter, Error, TEXT("CameraView have not choosen!"));
-        break;
     }
 }
 
-void AIABaseCharacter::SetCameraViewSettings(ECameraView Camera)
+void AIABaseCharacter::SetCameraViewSettings()
 {
-    if (Camera == ECameraView::ThirdPersonView)
+    if (CameraView == ECameraView::ThirdPersonView)
     {
         bUseControllerRotationYaw = false;
         GetCharacterMovement()->bOrientRotationToMovement = true;
+        // GetMesh()->SetOwnerNoSee(false);
     }
-    else if (Camera == ECameraView::FirstPersonView)
+    else if (CameraView == ECameraView::FirstPersonView)
     {
         bUseControllerRotationYaw = true;
         GetCharacterMovement()->bOrientRotationToMovement = false;
+        // GetMesh()->SetOwnerNoSee(true);
     }
+}
+
+void AIABaseCharacter::FullCameraSettingsReset()
+{
+    ChangeCameraView();
+    SetCameraViewSettings();
 }

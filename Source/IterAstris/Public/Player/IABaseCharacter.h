@@ -31,11 +31,20 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
+    ECameraView CameraView;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
     float BaseTurnRate;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera")
-    ECameraView CameraView;
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
+    float DefaultTargetArmLenght;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
+    float CurrentTargetArmLenght;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
+    FVector DefaultCameraOffset;
 
     virtual void BeginPlay() override;
 
@@ -45,16 +54,19 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 private:
+    void Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType);
     void MoveForward(float Amount);
     void MoveRight(float Amount);
 
-    void LookUp(float Amount);
     void TurnAround(float Amount);
+    void LookUp(float Amount);
 
     void TurnAroundRate(float Rate);
     void LookUpRate(float Rate);
 
-    void SwitchCameraView();
+    void CameraZoom(float Amount);
+    void ChangeCameraView();
+    void SetCameraViewSettings();
 
-    void SetCameraViewSettings(ECameraView Camera);
+    void FullCameraSettingsReset();
 };
