@@ -22,7 +22,7 @@ class ITERASTRIS_API AIABaseCharacter : public ACharacter
     GENERATED_BODY()
 
 public:
-    AIABaseCharacter();
+    AIABaseCharacter(const FObjectInitializer& ObjInit);
 
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
@@ -43,9 +43,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
     float CurrentTargetArmLenght;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
-    FVector DefaultCameraOffset;
-
     virtual void BeginPlay() override;
 
 public:
@@ -53,10 +50,18 @@ public:
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    bool IsRunning() const;
+
 private:
+    bool bWantsToRun = false;
+
     void Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType);
     void MoveForward(float Amount);
     void MoveRight(float Amount);
+
+    void OnStartRunning();
+    void OnStopRunning();
 
     void TurnAround(float Amount);
     void LookUp(float Amount);

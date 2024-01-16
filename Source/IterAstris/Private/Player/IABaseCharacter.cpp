@@ -5,10 +5,12 @@
 #include "Components/InputComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Components/IACharacterMovementComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
-AIABaseCharacter::AIABaseCharacter()
+AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
+    : Super(ObjInit.SetDefaultSubobjectClass<UIACharacterMovementComponent>(ACharacter::CharacterMovementComponentName))
 {
     PrimaryActorTick.bCanEverTick = true;
 
@@ -55,6 +57,9 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
     PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 
+    PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AIABaseCharacter::OnStartRunning);
+    PlayerInputComponent->BindAction("Run", IE_Released, this, &AIABaseCharacter::OnStopRunning);
+
     PlayerInputComponent->BindAction("ChangeCameraView", IE_Pressed, this, &AIABaseCharacter::ChangeCameraView);
 
     PlayerInputComponent->BindAxis("CameraZoom", this, &AIABaseCharacter::CameraZoom);
@@ -99,6 +104,21 @@ void AIABaseCharacter::MoveForward(float Amount)
 void AIABaseCharacter::MoveRight(float Amount)
 {
     Move(Amount, FVector::RightVector, EAxis::Y);
+}
+
+void AIABaseCharacter::OnStartRunning() 
+{
+    bWantsToRun = true;
+}
+
+void AIABaseCharacter::OnStopRunning() 
+{
+    bWantsToRun = false;
+}
+
+bool AIABaseCharacter::IsRunning() const
+{
+    return bWantsToRun && !GetVelocity().IsZero();
 }
 
 void AIABaseCharacter::LookUp(float Amount)

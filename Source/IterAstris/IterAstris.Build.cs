@@ -12,7 +12,10 @@ public class IterAstris : ModuleRules
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
 
-        PublicIncludePaths.AddRange(new string[] { "IterAstris/Public/Player" });
+        PublicIncludePaths.AddRange(new string[] { 
+            "IterAstris/Public/Player",
+            "IterAstris/Public/Components"
+        });
 
         // Uncomment if you are using Slate UI
         // PrivateDependencyModuleNames.AddRange(new string[] { "Slate", "SlateCore" });
