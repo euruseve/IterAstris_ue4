@@ -3,9 +3,12 @@
 #include "Player/IABaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/TextRenderComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/IACharacterMovementComponent.h"
+#include "Components/IAHealthComponent.h"
+#include "Components/IAIntoxicationComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
@@ -37,16 +40,38 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
 
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
+
+    HealthComponent = CreateDefaultSubobject<UIAHealthComponent>("HealthComponent");
+
+    HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthText");
+    HealthTextComponent->SetupAttachment(GetRootComponent());
+
+    IntoxicationComponent = CreateDefaultSubobject<UIAIntoxicationComponent>("IntoxicationComponent");
+    
+    IntoxicationTextComponent = CreateDefaultSubobject<UTextRenderComponent>("IntoxicationText");
+    IntoxicationTextComponent->SetupAttachment(GetRootComponent());
 }
 
 void AIABaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
+
+    check(HealthComponent);
+    check(IntoxicationComponent);
 }
 
 void AIABaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+
+    const auto Health = HealthComponent->GetHealth();
+    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+
+    const auto ToxinLvl = IntoxicationComponent->GetToxinLevel();
+    IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), ToxinLvl)));
+
+
+    TakeDamage(0.1f, FDamageEvent{}, Controller, this);
 }
 
 void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -73,6 +98,7 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAxis("TurnAround", this, &APawn::AddControllerYawInput);
     PlayerInputComponent->BindAxis("TurnAroundRate", this, &AIABaseCharacter::TurnAroundRate);
 }
+
 
 void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType)
 {
@@ -210,3 +236,5 @@ void AIABaseCharacter::FullCameraSettingsReset()
     ChangeCameraView();
     SetCameraViewSettings();
 }
+
+

@@ -8,12 +8,22 @@
 
 class UCameraComponent;
 class USpringArmComponent;
+class UIAHealthComponent;
+class UTextRenderComponent;
+class UIAIntoxicationComponent;
 
 UENUM(BlueprintType)
 enum class ECameraView : uint8
 {
     FirstPersonView UMETA(DisplayName = "FirstPerson"),
     ThirdPersonView UMETA(DisplayName = "ThirdPerson")
+};
+
+UENUM(BlueprintType)
+enum class EPlayerSuitMode : uint8
+{
+    WithoutSuit UMETA(DisplayName = "WithoutSuit"),
+    SpaceSuit UMETA(DisplayName = "SpaceSuit")
 };
 
 UCLASS()
@@ -30,6 +40,18 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UCameraComponent* CameraComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UIAHealthComponent* HealthComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UTextRenderComponent* HealthTextComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UIAIntoxicationComponent* IntoxicationComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UTextRenderComponent* IntoxicationTextComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
     ECameraView CameraView;
@@ -53,6 +75,7 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
 
+
 private:
     bool bWantsToRun = false;
 
@@ -74,4 +97,6 @@ private:
     void SetCameraViewSettings();
 
     void FullCameraSettingsReset();
+
+
 };
