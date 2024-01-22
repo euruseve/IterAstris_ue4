@@ -20,18 +20,10 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     bUseControllerRotationPitch = false;
     bUseControllerRotationRoll = false;
 
-    // bUseControllerRotationYaw = false;
-    // GetCharacterMovement()->bOrientRotationToMovement = true;
-
     CameraView = ECameraView::ThirdPersonView;
     BaseTurnRate = 45.f;
     DefaultTargetArmLenght = 300.f;
     CurrentTargetArmLenght = DefaultTargetArmLenght;
-
-    // TODO взнати що воно робить
-    // GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.0f, 0.0f);
-    // GetCharacterMovement()->JumpZVelocity = 600.f;
-    // GetCharacterMovement()->AirControl = 0.2f;
 
     SpringArmComponent = CreateDefaultSubobject<USpringArmComponent>("SpringArmComponent");
     SpringArmComponent->SetupAttachment(GetRootComponent());
@@ -47,7 +39,11 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     HealthTextComponent->SetupAttachment(GetRootComponent());
 
     IntoxicationComponent = CreateDefaultSubobject<UIAIntoxicationComponent>("IntoxicationComponent");
-    
+    if (!ensureMsgf(IntoxicationComponent, TEXT("IntoxicationComponent not created!")))
+    {
+        return;
+    }
+
     IntoxicationTextComponent = CreateDefaultSubobject<UTextRenderComponent>("IntoxicationText");
     IntoxicationTextComponent->SetupAttachment(GetRootComponent());
 }
@@ -55,7 +51,7 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
 void AIABaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
-
+    
     check(HealthComponent);
     check(IntoxicationComponent);
 }
@@ -69,9 +65,6 @@ void AIABaseCharacter::Tick(float DeltaTime)
 
     const auto ToxinLvl = IntoxicationComponent->GetToxinLevel();
     IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), ToxinLvl)));
-
-
-    TakeDamage(0.1f, FDamageEvent{}, Controller, this);
 }
 
 void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -98,7 +91,6 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAxis("TurnAround", this, &APawn::AddControllerYawInput);
     PlayerInputComponent->BindAxis("TurnAroundRate", this, &AIABaseCharacter::TurnAroundRate);
 }
-
 
 void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType)
 {
@@ -132,12 +124,12 @@ void AIABaseCharacter::MoveRight(float Amount)
     Move(Amount, FVector::RightVector, EAxis::Y);
 }
 
-void AIABaseCharacter::OnStartRunning() 
+void AIABaseCharacter::OnStartRunning()
 {
     bWantsToRun = true;
 }
 
-void AIABaseCharacter::OnStopRunning() 
+void AIABaseCharacter::OnStopRunning()
 {
     bWantsToRun = false;
 }
@@ -236,5 +228,3 @@ void AIABaseCharacter::FullCameraSettingsReset()
     ChangeCameraView();
     SetCameraViewSettings();
 }
-
-

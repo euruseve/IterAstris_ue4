@@ -97,6 +97,4 @@ private:
     void SetCameraViewSettings();
 
     void FullCameraSettingsReset();
-
-
 };
