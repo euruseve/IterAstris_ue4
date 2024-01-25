@@ -63,8 +63,8 @@ void AIABaseCharacter::Tick(float DeltaTime)
     const auto Health = HealthComponent->GetHealth();
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 
-    const auto ToxinLvl = IntoxicationComponent->GetToxinLevel();
-    IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), ToxinLvl)));
+    const auto OwnToxinLvl = IntoxicationComponent->GetToxinLevel();
+    IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), OwnToxinLvl)));
 }
 
 void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

@@ -1,45 +1,73 @@
-// Iter Astris. All Rights Reserved.
-
-#include "Components/IAIntoxicationComponent.h"
+﻿#include "Components/IAIntoxicationComponent.h"
 #include "Gameframework/Actor.h"
+#include <DamageZones/IAIntoxicationZone.h>
+#include "Engine/World.h"
 
-UIAIntoxicationComponent::UIAIntoxicationComponent()
-{
-    PrimaryComponentTick.bCanEverTick = true;
-}
+DEFINE_LOG_CATEGORY_STATIC(LogIntoxicationComponent, All, All);
+
+UIAIntoxicationComponent::UIAIntoxicationComponent() {}
 
 void UIAIntoxicationComponent::BeginPlay()
 {
     Super::BeginPlay();
-    ToxinLvl = 0.f;
+    OwnToxinLvl = 0.f;
     OwnerActor = GetOwner();
 }
 
-void UIAIntoxicationComponent::TickComponent(
-    float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+void UIAIntoxicationComponent::SetCurrentZoneToxinLevel(float NewToxinLvl)
 {
-    Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-    UpdateToxinLevel(DeltaTime);
+    InCurrentZoneToxinLvl = NewToxinLvl;
+    UE_LOG(LogIntoxicationComponent, Warning, TEXT("SetToxinLevel NewToxinLvl: %f --- InCurrentZoneToxinLvl: %f"),
+        NewToxinLvl, InCurrentZoneToxinLvl);
 }
 
-void UIAIntoxicationComponent::UpdateToxinLevel(float DeltaTime)
+void UIAIntoxicationComponent::HandleZoneStateChanged(bool InZone)
 {
-    if (ToxinLvl > 0.f)
+    bIsInIntoxicationZone = InZone;
+
+    if (bIsInIntoxicationZone)
     {
-        if (ToxinDecreaseTimer <= 0.f)
+        OwnToxinLvl = FMath::Max(InCurrentZoneToxinLvl, OwnToxinLvl);
+    }
+    else
+    {
+        if (OwnToxinLvl > InCurrentZoneToxinLvl)
         {
-            ToxinLvl -= ToxinDecreaseRate * DeltaTime;
-            ToxinLvl = FMath::Clamp(ToxinLvl, 0.f, MaxToxinLvl);
+            UpdateToxinLevel();
         }
         else
         {
-            ToxinDecreaseTimer -= DeltaTime;
+            OwnToxinLvl = InCurrentZoneToxinLvl;
         }
+    }
+
+    UE_LOG(LogIntoxicationComponent, Warning,
+        TEXT("HandleZoneStateChanged OwnToxinLvl: %f --- InCurrentZoneToxinLvl: %f"), OwnToxinLvl,
+        InCurrentZoneToxinLvl);
+}
+
+void UIAIntoxicationComponent::UpdateToxinLevel()
+{
+    GetWorld()->GetTimerManager().ClearTimer(ToxinUpdateTimerHandle);
+
+    if (!bIsInIntoxicationZone || OwnToxinLvl != InCurrentZoneToxinLvl)
+    {
+        GetWorld()->GetTimerManager().SetTimer(ToxinUpdateTimerHandle, this,
+            &UIAIntoxicationComponent::DecreaseToxinLevel, DecreasingRate, true, DecreasingDelay);
     }
 }
 
-void UIAIntoxicationComponent::SetToxinLevel(float NewToxinLevel)
+void UIAIntoxicationComponent::DecreaseToxinLevel()
 {
-    ToxinLvl = FMath::Clamp(NewToxinLevel, 0.f, MaxToxinLvl);
-    ToxinDecreaseTimer = ToxinDecreaseDelay;
+    UE_LOG(LogIntoxicationComponent, Warning, TEXT("OwnToxinLvl: %f --- InCurrentZoneToxinLvl: %f"), OwnToxinLvl,
+        InCurrentZoneToxinLvl);
+
+    OwnToxinLvl = FMath::Max(OwnToxinLvl - DecreaseValue, InCurrentZoneToxinLvl);
+
+    OnToxinLevelChanged.Broadcast(OwnToxinLvl);
+
+    if (OwnToxinLvl == InCurrentZoneToxinLvl)
+    {
+        GetWorld()->GetTimerManager().ClearTimer(ToxinUpdateTimerHandle);
+    }
 }

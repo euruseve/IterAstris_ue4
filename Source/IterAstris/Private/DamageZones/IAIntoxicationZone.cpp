@@ -31,22 +31,22 @@ void AIAIntoxicationZone::BeginPlay()
 void AIAIntoxicationZone::OnZoneEnter(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
     UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-    ApplyToxinLevel(OtherActor);
+    IsInZone(OtherActor, true);
 }
 
 void AIAIntoxicationZone::OnZoneExit(
     UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-    // Optional: Reset Toxin level on exit
-    ApplyToxinLevel(OtherActor);
+    IsInZone(OtherActor, false);
 }
 
-void AIAIntoxicationZone::ApplyToxinLevel(AActor* Actor)
+void AIAIntoxicationZone::IsInZone(AActor* Actor, bool InZone = false)
 {
     UIAIntoxicationComponent* IntoxicationComponent = Actor->FindComponentByClass<UIAIntoxicationComponent>();
     if (IntoxicationComponent)
     {
-        IntoxicationComponent->SetToxinLevel(ToxinLevelOnEnter);
+        IntoxicationComponent->SetCurrentZoneToxinLevel(InZone ? ToxinLevelOnEnter : OutsideDefaultToxinLevel);
+        IntoxicationComponent->HandleZoneStateChanged(InZone);
     }
+    OnZoneStateChanged.Broadcast(InZone);
 }
-

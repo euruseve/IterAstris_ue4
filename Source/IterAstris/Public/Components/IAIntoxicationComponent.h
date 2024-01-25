@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "IAIntoxicationComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnToxinLevelChanged, float, NewToxinLevel);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ITERASTRIS_API UIAIntoxicationComponent : public UActorComponent
 {
@@ -19,26 +21,39 @@ protected:
     float MaxToxinLvl = 100.f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Toxin")
-    float ToxinDecreaseRate = 1.f; // Decrease rate per second
+    float OwnToxinLvl = 0.f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Toxin")
-    float MaxToxinDamageRate = 1.f; // Maximum damage rate at MaxToxinLvl
+    float DecreasingValue = 1.f;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Toxin")
-    float ToxinDecreaseDelay = 5.f; // Delay before toxin starts decreasing after leaving the zone
+    float DecreasingRate = 1.f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Toxin")
+    float DecreasingDelay = 1.f;
 
     virtual void BeginPlay() override;
-    virtual void TickComponent(
-        float DeltaTime, enum ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 public:
-    FORCEINLINE float GetToxinLevel() const { return ToxinLvl; };
-    void SetToxinLevel(float NewToxinLevel); // Added function to set toxin level externally
+    UPROPERTY(BlueprintAssignable, Category = "Toxin")
+    FOnToxinLevelChanged OnToxinLevelChanged;
+
+    FORCEINLINE bool IsInIntoxicationZone() const { return bIsInIntoxicationZone; };
+    FORCEINLINE float GetToxinLevel() const { return OwnToxinLvl; };
+   
+    void SetCurrentZoneToxinLevel(float NewToxinLvl);
+
+    void HandleZoneStateChanged(bool InZone);
 
 private:
-    float ToxinLvl = 0.f;
-    float ToxinDecreaseTimer = 0.f;
-    AActor* OwnerActor;
+    void UpdateToxinLevel();
 
-    void UpdateToxinLevel(float DeltaTime);
+    UFUNCTION()
+    void DecreaseToxinLevel();
+
+    float InCurrentZoneToxinLvl = 0.f;
+    bool bIsInIntoxicationZone = false;
+
+    AActor* OwnerActor;
+    FTimerHandle ToxinUpdateTimerHandle;
 };
