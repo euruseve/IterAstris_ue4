@@ -16,6 +16,7 @@ public class IterAstris : ModuleRules
             "IterAstris/Public/Player",
             "IterAstris/Public/Components",
             "IterAstris/Public/DamageZones",
+            "IterAstris/Public/DamageTypes"
         });
 
         // Uncomment if you are using Slate UI

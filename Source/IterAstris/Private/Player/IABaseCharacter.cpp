@@ -20,6 +20,8 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     bUseControllerRotationPitch = false;
     bUseControllerRotationRoll = false;
 
+    PlayerSuitMode = EPlayerSuitMode::WithoutSuit;
+
     CameraView = ECameraView::ThirdPersonView;
     BaseTurnRate = 45.f;
     DefaultTargetArmLenght = 300.f;
@@ -65,6 +67,7 @@ void AIABaseCharacter::Tick(float DeltaTime)
 
     const auto OwnToxinLvl = IntoxicationComponent->GetToxinLevel();
     IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), OwnToxinLvl)));
+
 }
 
 void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

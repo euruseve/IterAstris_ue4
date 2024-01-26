@@ -62,7 +62,7 @@ void UIAIntoxicationComponent::DecreaseToxinLevel()
     UE_LOG(LogIntoxicationComponent, Warning, TEXT("OwnToxinLvl: %f --- InCurrentZoneToxinLvl: %f"), OwnToxinLvl,
         InCurrentZoneToxinLvl);
 
-    OwnToxinLvl = FMath::Max(OwnToxinLvl - DecreaseValue, InCurrentZoneToxinLvl);
+    OwnToxinLvl = FMath::Max(OwnToxinLvl - DecreasingValue, InCurrentZoneToxinLvl);
 
     OnToxinLevelChanged.Broadcast(OwnToxinLvl);
 

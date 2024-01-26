@@ -65,6 +65,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
     float CurrentTargetArmLenght;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Mode")
+    EPlayerSuitMode PlayerSuitMode;
+
     virtual void BeginPlay() override;
 
 public:

@@ -3,6 +3,7 @@
 #include "DamageZones/IAIntoxicationZone.h"
 #include "Components/BoxComponent.h"
 #include <Components/IAIntoxicationComponent.h>
+#include <DamageTypes/IAIntoxicationDamageType.h>
 
 AIAIntoxicationZone::AIAIntoxicationZone()
 {
