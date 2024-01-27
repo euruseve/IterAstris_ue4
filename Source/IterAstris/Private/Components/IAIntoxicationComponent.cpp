@@ -44,6 +44,7 @@ void UIAIntoxicationComponent::HandleZoneStateChanged(bool InZone)
     UE_LOG(LogIntoxicationComponent, Warning,
         TEXT("HandleZoneStateChanged OwnToxinLvl: %f --- InCurrentZoneToxinLvl: %f"), OwnToxinLvl,
         InCurrentZoneToxinLvl);
+    OnToxinLevelChanged.Broadcast(OwnToxinLvl);
 }
 
 void UIAIntoxicationComponent::UpdateToxinLevel()

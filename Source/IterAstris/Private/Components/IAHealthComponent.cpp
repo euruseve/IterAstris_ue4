@@ -2,11 +2,7 @@
 
 #include "Components/IAHealthComponent.h"
 #include "Components/IAIntoxicationComponent.h"
-#include "Player/IABaseCharacter.h"
 #include "Gameframework/Actor.h"
-#include <IACharacterMovementComponent.h>
-#include "DamageTypes/IAIntoxicationDamageType.h"
-    
 
 DEFINE_LOG_CATEGORY_STATIC(LogHealthComponent, All, All);
 
@@ -23,17 +19,48 @@ void UIAHealthComponent::BeginPlay()
     {
         ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UIAHealthComponent::OnTakeAnyDamage);
     }
+
+    UIAIntoxicationComponent* Intoxication = GetOwner()->FindComponentByClass<UIAIntoxicationComponent>();
+    if (Intoxication)
+    {
+        Intoxication->OnToxinLevelChanged.AddDynamic(this, &UIAHealthComponent::OnToxinLevelChanged);
+    }
 }
 
 void UIAHealthComponent::OnTakeAnyDamage(
     AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
 {
-    if (DamageType->IsA(UIAIntoxicationDamageType::StaticClass()))
-    {
-        UIAIntoxicationComponent* Intoxication = DamagedActor->FindComponentByClass<UIAIntoxicationComponent>();
-        UE_LOG(LogHealthComponent, Warning, TEXT("This shit works"));
-    }
 
 }
 
+void UIAHealthComponent::OnToxinLevelChanged(float NewToxinLevel)
+{
+    DamageToApply = NewToxinLevel;
+    if (NewToxinLevel > 0.f)
+    {
+        StartContinuousDamage();
+    }
+    else
+    {
+        StopContinuousDamage();
+    }
+}
 
+void UIAHealthComponent::ApplyContinuousDamage()
+{
+    Health -= DamageToApply * 0.1f;
+}
+
+void UIAHealthComponent::StartContinuousDamage()
+{
+    if (!GetWorld()->GetTimerManager().IsTimerActive(ContinuousDamageTimerHandle))
+    {
+        GetWorld()->GetTimerManager().SetTimer(
+            ContinuousDamageTimerHandle, this, &UIAHealthComponent::ApplyContinuousDamage, 1.0f, true, 5.0f);
+    }
+}
+
+void UIAHealthComponent::StopContinuousDamage()
+{
+    GetWorld()->GetTimerManager().ClearTimer(ContinuousDamageTimerHandle);
+}

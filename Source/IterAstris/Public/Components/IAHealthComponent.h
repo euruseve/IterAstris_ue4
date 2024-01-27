@@ -26,7 +26,23 @@ public:
 private:
     float Health = 0.f;
 
+    float DamageToApply = 0.f;
+
     UFUNCTION()
     void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
         class AController* InstigatedBy, AActor* DamageCauser);
+
+    UFUNCTION()
+    void OnToxinLevelChanged(float NewToxinLevel);
+
+    UFUNCTION()
+    void ApplyContinuousDamage();
+
+    UFUNCTION()
+    void StartContinuousDamage();
+
+    UFUNCTION()
+    void StopContinuousDamage();
+
+    FTimerHandle ContinuousDamageTimerHandle;
 };
