@@ -25,21 +25,4 @@ protected:
 
 public:
     FORCEINLINE float GetHealth() const { return Health; };
-
-private:
-    float DamageToApply = 0.f;
-
-    UFUNCTION()
-    void OnToxinLevelChanged(float NewToxinLevel);
-
-    UFUNCTION()
-    void ApplyContinuousDamage();
-
-    UFUNCTION()
-    void StartContinuousDamage();
-
-    UFUNCTION()
-    void StopContinuousDamage();
-
-    FTimerHandle ContinuousDamageTimerHandle;
 };

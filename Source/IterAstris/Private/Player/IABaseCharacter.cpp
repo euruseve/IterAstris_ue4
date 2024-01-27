@@ -7,7 +7,8 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/IACharacterMovementComponent.h"
-#include "Components/IAHealthComponent.h"
+
+#include "Components/Player/IAPlayerHealthComponent.h"
 #include "Components/IAIntoxicationComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
@@ -35,7 +36,7 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
     CameraComponent->SetupAttachment(SpringArmComponent);
 
-    HealthComponent = CreateDefaultSubobject<UIAHealthComponent>("HealthComponent");
+    PlayerHealthComponent = CreateDefaultSubobject<UIAPlayerHealthComponent>("PlayerHealthComponent");
 
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthText");
     HealthTextComponent->SetupAttachment(GetRootComponent());
@@ -50,7 +51,7 @@ void AIABaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
     
-    check(HealthComponent);
+    check(PlayerHealthComponent);
     check(IntoxicationComponent);
 }
 
@@ -58,12 +59,11 @@ void AIABaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
 
-    const auto Health = HealthComponent->GetHealth();
+    const auto Health = PlayerHealthComponent->GetHealth();
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 
     const auto OwnToxinLvl = IntoxicationComponent->GetToxinLevel();
     IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), OwnToxinLvl)));
-
 }
 
 void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)

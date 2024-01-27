@@ -9,6 +9,7 @@
 class UCameraComponent;
 class USpringArmComponent;
 class UIAHealthComponent;
+class UIAPlayerHealthComponent;
 class UTextRenderComponent;
 class UIAIntoxicationComponent;
 
@@ -42,7 +43,7 @@ protected:
     UCameraComponent* CameraComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UIAHealthComponent* HealthComponent;
+    UIAPlayerHealthComponent* PlayerHealthComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;

@@ -15,6 +15,7 @@ public class IterAstris : ModuleRules
         PublicIncludePaths.AddRange(new string[] { 
             "IterAstris/Public/Player",
             "IterAstris/Public/Components",
+            "IterAstris/Public/Components/Player",
             "IterAstris/Public/DamageZones",
             "IterAstris/Public/DamageTypes"
         });
