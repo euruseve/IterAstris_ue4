@@ -13,24 +13,11 @@ void UIAHealthComponent::BeginPlay()
     Super::BeginPlay();
     Health = MaxHealth;
 
-    AActor* ComponentOwner = GetOwner();
-
-    if (ComponentOwner)
-    {
-        ComponentOwner->OnTakeAnyDamage.AddDynamic(this, &UIAHealthComponent::OnTakeAnyDamage);
-    }
-
     UIAIntoxicationComponent* Intoxication = GetOwner()->FindComponentByClass<UIAIntoxicationComponent>();
     if (Intoxication)
     {
         Intoxication->OnToxinLevelChanged.AddDynamic(this, &UIAHealthComponent::OnToxinLevelChanged);
     }
-}
-
-void UIAHealthComponent::OnTakeAnyDamage(
-    AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
-{
-
 }
 
 void UIAHealthComponent::OnToxinLevelChanged(float NewToxinLevel)

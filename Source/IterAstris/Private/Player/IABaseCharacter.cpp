@@ -41,10 +41,6 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     HealthTextComponent->SetupAttachment(GetRootComponent());
 
     IntoxicationComponent = CreateDefaultSubobject<UIAIntoxicationComponent>("IntoxicationComponent");
-    if (!ensureMsgf(IntoxicationComponent, TEXT("IntoxicationComponent not created!")))
-    {
-        return;
-    }
 
     IntoxicationTextComponent = CreateDefaultSubobject<UTextRenderComponent>("IntoxicationText");
     IntoxicationTextComponent->SetupAttachment(GetRootComponent());

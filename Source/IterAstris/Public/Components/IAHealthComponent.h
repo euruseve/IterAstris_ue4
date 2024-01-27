@@ -18,19 +18,16 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0", ClampMax = "100"))
     float MaxHealth = 100.f;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
+    float Health = 0.f;
+
     virtual void BeginPlay() override;
 
 public:
     FORCEINLINE float GetHealth() const { return Health; };
 
 private:
-    float Health = 0.f;
-
     float DamageToApply = 0.f;
-
-    UFUNCTION()
-    void OnTakeAnyDamage(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,
-        class AController* InstigatedBy, AActor* DamageCauser);
 
     UFUNCTION()
     void OnToxinLevelChanged(float NewToxinLevel);
