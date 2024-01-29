@@ -9,5 +9,6 @@ UIAHealthComponent::UIAHealthComponent() {}
 void UIAHealthComponent::BeginPlay()
 {
     Health = MaxHealth;
+    OnHealthChanged.Broadcast(Health);
     Super::BeginPlay();
 }

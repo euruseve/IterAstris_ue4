@@ -48,9 +48,21 @@ void UIAPlayerHealthComponent::ApplyContinuousDamage()
 
     // These values are random tbh
     if (Character->IsPlayerInCostume() && DamageToApply >= 80)
-        Health -= DamageToApply * 0.01f;
+    {
+        Health = FMath::Clamp(Health - DamageToApply * 0.01f, 0.f, MaxHealth);
+        OnHealthChanged.Broadcast(Health);
+    }
     else if (!Character->IsPlayerInCostume())
-        Health -= DamageToApply * 0.1f;
+    {
+        Health = FMath::Clamp(Health - DamageToApply * 0.1f, 0.f, MaxHealth);
+        OnHealthChanged.Broadcast(Health);
+    }
+
+    if (IsDead() && bCanToBroadcast)
+    {
+        bCanToBroadcast = false;
+        OnDeath.Broadcast();
+    }
 }
 
 void UIAPlayerHealthComponent::StartContinuousDamage()

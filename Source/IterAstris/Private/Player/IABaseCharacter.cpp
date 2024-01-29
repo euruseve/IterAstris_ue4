@@ -54,6 +54,13 @@ void AIABaseCharacter::BeginPlay()
     
     check(PlayerHealthComponent);
     check(PlayerIntoxicationComponent);
+    check(GetCharacterMovement());
+
+    OnHealthChanged(PlayerHealthComponent->GetHealth());
+    PlayerHealthComponent->OnDeath.AddUObject(this, &AIABaseCharacter::OnDeath);
+    PlayerHealthComponent->OnHealthChanged.AddUObject(this, &AIABaseCharacter::OnHealthChanged);
+
+    PlayerIntoxicationComponent->OnToxinLevelChanged.AddDynamic(this, &AIABaseCharacter::OnToxinLevelChanged);
 
     check(PlayerModels.BaseMesh);
     check(PlayerModels.SpaceSuitMesh);
@@ -64,12 +71,6 @@ void AIABaseCharacter::BeginPlay()
 void AIABaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
-
-    const auto Health = PlayerHealthComponent->GetHealth();
-    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
-
-    const auto OwnToxinLvl = PlayerIntoxicationComponent->GetToxinLevel();
-    IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), OwnToxinLvl)));
 }
 
 void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -98,6 +99,18 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAxis("TurnAround", this, &APawn::AddControllerYawInput);
     PlayerInputComponent->BindAxis("TurnAroundRate", this, &AIABaseCharacter::TurnAroundRate);
 }
+
+
+void AIABaseCharacter::OnHealthChanged(float Health) 
+{
+    HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
+}
+
+void AIABaseCharacter::OnToxinLevelChanged(float OwnToxinLvl)
+{
+    IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), OwnToxinLvl)));
+}
+
 
 void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType)
 {
@@ -190,6 +203,9 @@ void AIABaseCharacter::TurnAroundRate(float Rate)
 
 void AIABaseCharacter::CameraZoom(float Amount)
 {
+    if (!bCanCameraMove)
+        return;
+
     if (CameraView == ECameraView::ThirdPersonView)
     {
         float ZoomLenght = SpringArmComponent->TargetArmLength + (Amount * -10);
@@ -216,6 +232,9 @@ void AIABaseCharacter::CameraZoom(float Amount)
 
 void AIABaseCharacter::ChangeCameraView()
 {
+    if (!bCanCameraMove)
+        return;
+
     if (CameraView == ECameraView::FirstPersonView)
     {
         CameraView = ECameraView::ThirdPersonView;
@@ -232,6 +251,9 @@ void AIABaseCharacter::ChangeCameraView()
 
 void AIABaseCharacter::SetCameraViewSettings()
 {
+    if (!bCanCameraMove)
+        return;
+
     if (CameraView == ECameraView::ThirdPersonView)
     {
         bUseControllerRotationYaw = false;
@@ -258,6 +280,8 @@ void AIABaseCharacter::ChangeCostumeMode()
     if (IsRunning() || !bCanWearCostume)
         return;
 
+    PlayAnimMontage(SuitModeAnimMintage);
+
     if (PlayerSuitMode == EPlayerSuitMode::SpaceSuit)
     {
         PlayerSuitMode = EPlayerSuitMode::WithoutSuit;
@@ -275,4 +299,24 @@ void AIABaseCharacter::ChangeCostumeMode()
 bool AIABaseCharacter::IsPlayerInCostume() const
 {
     return PlayerSuitMode == EPlayerSuitMode::SpaceSuit;
+}
+
+
+void AIABaseCharacter::OnDeath()
+{
+    bCanWearCostume = false;
+    bCanCameraMove = false;
+    OnDeathCameraChange();
+
+    UE_LOG(LogBaseCharacter, Display, TEXT("DEAD"));
+    PlayAnimMontage(DeathAnimMintage);
+    GetCharacterMovement()->DisableMovement();
+
+    SetLifeSpan(10.f);
+}
+
+void AIABaseCharacter::OnDeathCameraChange() 
+{
+    CameraView = ECameraView::ThirdPersonView;
+    SpringArmComponent->TargetArmLength = 450;
 }

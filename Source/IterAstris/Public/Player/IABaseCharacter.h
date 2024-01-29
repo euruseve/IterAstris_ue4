@@ -83,8 +83,13 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
     float CurrentTargetArmLenght;
 
-    virtual void BeginPlay() override;
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* DeathAnimMintage;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* SuitModeAnimMintage;
+
+    virtual void BeginPlay() override;
 public:
     virtual void Tick(float DeltaTime) override;
 
@@ -98,6 +103,11 @@ public:
 private:
     bool bWantsToRun = false;
     bool bCanWearCostume = true;
+    bool bCanCameraMove = true;
+
+    UFUNCTION()
+    void OnToxinLevelChanged(float OwnToxinLvl);
+    void OnHealthChanged(float Health);
 
     void Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType);
     void MoveForward(float Amount);
@@ -122,4 +132,7 @@ private:
     void FullCameraSettingsReset();
 
     void ChangeCostumeMode();
+
+    void OnDeath();
+    void OnDeathCameraChange();
 };

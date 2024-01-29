@@ -6,6 +6,9 @@
 #include "Components/ActorComponent.h"
 #include "IAHealthComponent.generated.h"
 
+DECLARE_MULTICAST_DELEGATE(FOnDeath);
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnHealthChanged, float);
+
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class ITERASTRIS_API UIAHealthComponent : public UActorComponent
 {
@@ -21,8 +24,17 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")
     float Health = 0.f;
 
+    UPROPERTY()
+    bool bCanToBroadcast = true;
+
     virtual void BeginPlay() override;
 
 public:
-    FORCEINLINE float GetHealth() const { return Health; };
+    float GetHealth() const { return Health; };
+
+    UFUNCTION(BlueprintCallable)
+    bool IsDead() const { return Health <= 0.f; };
+
+    FOnDeath OnDeath;
+    FOnHealthChanged OnHealthChanged;
 };

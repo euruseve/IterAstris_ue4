@@ -47,6 +47,7 @@ void UIAPlayerIntoxicationComponent::HandleZoneStateChanged(bool InZone)
 
 void UIAPlayerIntoxicationComponent::UpdateToxinLevel()
 {
+
     GetWorld()->GetTimerManager().ClearTimer(ToxinUpdateTimerHandle);
 
     if (!bIsInIntoxicationZone || OwnToxinLvl != InCurrentZoneToxinLvl)
@@ -58,7 +59,7 @@ void UIAPlayerIntoxicationComponent::UpdateToxinLevel()
 
 void UIAPlayerIntoxicationComponent::DecreaseToxinLevel()
 {
-    UE_LOG(LogPlayerIntoxicationComponent, Warning, TEXT("OwnToxinLvl: %f --- InCurrentZoneToxinLvl: %f"), OwnToxinLvl,
+    UE_LOG(LogPlayerIntoxicationComponent, Display, TEXT("OwnToxinLvl: %f --- InCurrentZoneToxinLvl: %f"), OwnToxinLvl,
         InCurrentZoneToxinLvl);
 
     OwnToxinLvl = FMath::Max(OwnToxinLvl - DecreasingValue, InCurrentZoneToxinLvl);

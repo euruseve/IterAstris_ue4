@@ -24,5 +24,4 @@ protected:
 public:
     virtual void SetCurrentZoneToxinLevel(float NewToxinLvl);
     virtual void HandleZoneStateChanged(bool InZone) override;
-
 };

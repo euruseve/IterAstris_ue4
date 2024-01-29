@@ -18,7 +18,7 @@ void UIAIntoxicationComponent::BeginPlay()
 void UIAIntoxicationComponent::SetCurrentZoneToxinLevel(float NewToxinLvl)
 {
     InCurrentZoneToxinLvl = NewToxinLvl;
-    UE_LOG(LogIntoxicationComponent, Warning, TEXT("SetToxinLevel NewToxinLvl: %f --- InCurrentZoneToxinLvl: %f"),
+    UE_LOG(LogIntoxicationComponent, Display, TEXT("SetToxinLevel NewToxinLvl: %f --- InCurrentZoneToxinLvl: %f"),
         NewToxinLvl, InCurrentZoneToxinLvl);
 }
 
