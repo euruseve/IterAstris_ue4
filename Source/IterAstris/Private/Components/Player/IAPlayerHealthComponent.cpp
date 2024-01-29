@@ -1,6 +1,7 @@
 // Iter Astris. All Rights Reserved.
 
 #include "Components/Player/IAPlayerHealthComponent.h"
+#include "Components/Player/IAPlayerIntoxicationComponent.h"
 #include "Components/IAIntoxicationComponent.h"
 #include "Gameframework/Actor.h"
 
@@ -11,7 +12,7 @@ UIAPlayerHealthComponent::UIAPlayerHealthComponent() {}
 void UIAPlayerHealthComponent::BeginPlay() 
 {
     HealthDecreaseDelay = 1.f;
-    UIAIntoxicationComponent* Intoxication = GetOwner()->FindComponentByClass<UIAIntoxicationComponent>();
+    UIAPlayerIntoxicationComponent* Intoxication = GetOwner()->FindComponentByClass<UIAPlayerIntoxicationComponent>();
     if (Intoxication)
     {
         Intoxication->OnToxinLevelChanged.AddDynamic(this, &UIAPlayerHealthComponent::OnToxinLevelChanged);

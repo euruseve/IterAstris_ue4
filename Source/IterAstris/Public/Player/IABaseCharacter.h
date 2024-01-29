@@ -12,6 +12,7 @@ class UIAHealthComponent;
 class UIAPlayerHealthComponent;
 class UTextRenderComponent;
 class UIAIntoxicationComponent;
+class UIAPlayerIntoxicationComponent;
 
 UENUM(BlueprintType)
 enum class ECameraView : uint8
@@ -48,8 +49,11 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;
 
+    //UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    //UIAIntoxicationComponent* IntoxicationComponent;
+    
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UIAIntoxicationComponent* IntoxicationComponent;
+    UIAPlayerIntoxicationComponent* PlayerIntoxicationComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* IntoxicationTextComponent;
