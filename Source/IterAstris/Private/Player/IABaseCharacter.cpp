@@ -54,6 +54,11 @@ void AIABaseCharacter::BeginPlay()
     
     check(PlayerHealthComponent);
     check(PlayerIntoxicationComponent);
+
+    check(PlayerModels.BaseMesh);
+    check(PlayerModels.SpaceSuitMesh);
+
+    GetMesh()->SetSkeletalMesh(PlayerModels.BaseMesh);
 }
 
 void AIABaseCharacter::Tick(float DeltaTime)
@@ -72,13 +77,15 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     check(PlayerInputComponent);
     Super::SetupPlayerInputComponent(PlayerInputComponent);
 
-    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &ACharacter::Jump);
-    PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
+    PlayerInputComponent->BindAction("Jump", IE_Pressed, this, &AIABaseCharacter::OnStartJumping);
+    PlayerInputComponent->BindAction("Jump", IE_Released, this, &AIABaseCharacter::OnStopJumping);
 
     PlayerInputComponent->BindAction("Run", IE_Pressed, this, &AIABaseCharacter::OnStartRunning);
     PlayerInputComponent->BindAction("Run", IE_Released, this, &AIABaseCharacter::OnStopRunning);
 
     PlayerInputComponent->BindAction("ChangeCameraView", IE_Pressed, this, &AIABaseCharacter::ChangeCameraView);
+
+    PlayerInputComponent->BindAction("ChangeCostumeMode", IE_Pressed, this, &AIABaseCharacter::ChangeCostumeMode);
 
     PlayerInputComponent->BindAxis("CameraZoom", this, &AIABaseCharacter::CameraZoom);
 
@@ -124,6 +131,7 @@ void AIABaseCharacter::MoveRight(float Amount)
     Move(Amount, FVector::RightVector, EAxis::Y);
 }
 
+
 void AIABaseCharacter::OnStartRunning()
 {
     bWantsToRun = true;
@@ -138,6 +146,20 @@ bool AIABaseCharacter::IsRunning() const
 {
     return bWantsToRun && !GetVelocity().IsZero();
 }
+
+
+void AIABaseCharacter::OnStartJumping()
+{
+    bCanWearCostume = false;
+    Jump();
+}
+
+void AIABaseCharacter::OnStopJumping() 
+{
+    StopJumping();
+    bCanWearCostume = true;
+}
+
 
 void AIABaseCharacter::LookUp(float Amount)
 {
@@ -164,6 +186,7 @@ void AIABaseCharacter::TurnAroundRate(float Rate)
     if (CameraView == ECameraView::ThirdPersonView)
         AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
+
 
 void AIABaseCharacter::CameraZoom(float Amount)
 {
@@ -227,4 +250,29 @@ void AIABaseCharacter::FullCameraSettingsReset()
 {
     ChangeCameraView();
     SetCameraViewSettings();
+}
+
+
+void AIABaseCharacter::ChangeCostumeMode() 
+{
+    if (IsRunning() || !bCanWearCostume)
+        return;
+
+    if (PlayerSuitMode == EPlayerSuitMode::SpaceSuit)
+    {
+        PlayerSuitMode = EPlayerSuitMode::WithoutSuit;
+        GetMesh()->SetSkeletalMesh(PlayerModels.BaseMesh);
+        UE_LOG(LogBaseCharacter, Display, TEXT("Without costume mode"));
+    }
+    else if (PlayerSuitMode == EPlayerSuitMode::WithoutSuit)
+    {
+        PlayerSuitMode = EPlayerSuitMode::SpaceSuit;
+        GetMesh()->SetSkeletalMesh(PlayerModels.SpaceSuitMesh);
+        UE_LOG(LogBaseCharacter, Display, TEXT("Costume mode"));
+    }
+}
+
+bool AIABaseCharacter::IsPlayerInCostume() const
+{
+    return PlayerSuitMode == EPlayerSuitMode::SpaceSuit;
 }

@@ -1,6 +1,7 @@
 // Iter Astris. All Rights Reserved.
 
 #include "Components/Player/IAPlayerHealthComponent.h"
+#include <Player/IABaseCharacter.h>
 #include "Components/Player/IAPlayerIntoxicationComponent.h"
 #include "Components/IAIntoxicationComponent.h"
 #include "Gameframework/Actor.h"
@@ -9,10 +10,14 @@ DEFINE_LOG_CATEGORY_STATIC(LogPlayerHealthComponent, All, All);
 
 UIAPlayerHealthComponent::UIAPlayerHealthComponent() {}
 
-void UIAPlayerHealthComponent::BeginPlay() 
+void UIAPlayerHealthComponent::BeginPlay()
 {
     HealthDecreaseDelay = 1.f;
-    UIAPlayerIntoxicationComponent* Intoxication = GetOwner()->FindComponentByClass<UIAPlayerIntoxicationComponent>();
+    OwnerActor = GetOwner();
+
+    check(OwnerActor);
+
+    UIAPlayerIntoxicationComponent* Intoxication = OwnerActor->FindComponentByClass<UIAPlayerIntoxicationComponent>();
     if (Intoxication)
     {
         Intoxication->OnToxinLevelChanged.AddDynamic(this, &UIAPlayerHealthComponent::OnToxinLevelChanged);
@@ -36,7 +41,16 @@ void UIAPlayerHealthComponent::OnToxinLevelChanged(float NewToxinLevel)
 
 void UIAPlayerHealthComponent::ApplyContinuousDamage()
 {
-    Health -= DamageToApply * 0.1f;
+    AIABaseCharacter* Character = Cast<AIABaseCharacter>(OwnerActor);
+
+    if (!Character)
+        return;
+
+    // These values are random tbh
+    if (Character->IsPlayerInCostume() && DamageToApply >= 80)
+        Health -= DamageToApply * 0.01f;
+    else if (!Character->IsPlayerInCostume())
+        Health -= DamageToApply * 0.1f;
 }
 
 void UIAPlayerHealthComponent::StartContinuousDamage()

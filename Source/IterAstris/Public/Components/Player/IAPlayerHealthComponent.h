@@ -21,6 +21,7 @@ protected:
     virtual void BeginPlay() override;
 
 private:
+    AActor* OwnerActor;
     float DamageToApply = 0.f;
 
     UFUNCTION()

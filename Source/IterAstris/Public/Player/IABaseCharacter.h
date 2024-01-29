@@ -26,6 +26,18 @@ enum class EPlayerSuitMode : uint8
     SpaceSuit UMETA(DisplayName = "SpaceSuit")
 };
 
+USTRUCT(BlueprintType)
+struct FPlayerModels
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditDefaultsOnly, Category = "Models")
+    USkeletalMesh* BaseMesh;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Models")
+    USkeletalMesh* SpaceSuitMesh;
+};
+
 UCLASS()
 class ITERASTRIS_API AIABaseCharacter : public ACharacter
 {
@@ -35,6 +47,12 @@ public:
     AIABaseCharacter(const FObjectInitializer& ObjInit);
 
 protected:
+    UPROPERTY(EditDefaultsOnly, Category = "Models")
+    FPlayerModels PlayerModels;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Mode")
+    EPlayerSuitMode PlayerSuitMode;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
 
@@ -46,7 +64,7 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;
-    
+
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UIAPlayerIntoxicationComponent* PlayerIntoxicationComponent;
 
@@ -65,9 +83,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
     float CurrentTargetArmLenght;
 
-    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Mode")
-    EPlayerSuitMode PlayerSuitMode;
-
     virtual void BeginPlay() override;
 
 public:
@@ -78,9 +93,11 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
 
+    bool IsPlayerInCostume() const;
 
 private:
     bool bWantsToRun = false;
+    bool bCanWearCostume = true;
 
     void Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType);
     void MoveForward(float Amount);
@@ -88,6 +105,9 @@ private:
 
     void OnStartRunning();
     void OnStopRunning();
+
+    void OnStartJumping();
+    void OnStopJumping();
 
     void TurnAround(float Amount);
     void LookUp(float Amount);
@@ -100,4 +120,6 @@ private:
     void SetCameraViewSettings();
 
     void FullCameraSettingsReset();
+
+    void ChangeCostumeMode();
 };

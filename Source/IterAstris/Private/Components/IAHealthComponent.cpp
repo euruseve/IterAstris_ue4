@@ -8,6 +8,6 @@ UIAHealthComponent::UIAHealthComponent() {}
 
 void UIAHealthComponent::BeginPlay()
 {
-    Super::BeginPlay();
     Health = MaxHealth;
+    Super::BeginPlay();
 }
