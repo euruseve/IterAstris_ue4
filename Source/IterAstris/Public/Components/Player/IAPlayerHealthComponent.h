@@ -16,10 +16,22 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0"))
-    float HealthDecreaseDelay;
+    float HealthDecreaseDelay = 1.f;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health Heal")
+    bool bAutoHeal = false;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health Heal")
+    float HealUpdateTime = 1.f;    
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health Heal")
+    float HealthHealDelay = 1.f;  
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health Heal")
+    float HealModifier = 1.f;
+
 
     virtual void BeginPlay() override;
-
 private:
     AActor* OwnerActor;
     float DamageToApply = 0.f;
@@ -36,5 +48,10 @@ private:
     UFUNCTION()
     void StopContinuousDamage();
 
+    void HealUpdate();
+    void StopHeal();
+    void SetHealth(float Value);
+
     FTimerHandle ContinuousDamageTimerHandle;
+    FTimerHandle HealTimerHandle;
 };

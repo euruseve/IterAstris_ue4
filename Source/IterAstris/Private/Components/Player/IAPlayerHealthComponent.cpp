@@ -5,6 +5,7 @@
 #include "Components/Player/IAPlayerIntoxicationComponent.h"
 #include "Components/IAIntoxicationComponent.h"
 #include "Gameframework/Actor.h"
+#include "Engine/World.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogPlayerHealthComponent, All, All);
 
@@ -12,7 +13,6 @@ UIAPlayerHealthComponent::UIAPlayerHealthComponent() {}
 
 void UIAPlayerHealthComponent::BeginPlay()
 {
-    HealthDecreaseDelay = 1.f;
     OwnerActor = GetOwner();
 
     check(OwnerActor);
@@ -41,27 +41,30 @@ void UIAPlayerHealthComponent::OnToxinLevelChanged(float NewToxinLevel)
 
 void UIAPlayerHealthComponent::ApplyContinuousDamage()
 {
+    StopHeal();
     AIABaseCharacter* Character = Cast<AIABaseCharacter>(OwnerActor);
 
-    if (!Character)
+    if (!Character && GetWorld())
         return;
 
-    // These values are random tbh
     if (Character->IsPlayerInCostume() && DamageToApply >= 80)
     {
-        Health = FMath::Clamp(Health - DamageToApply * 0.01f, 0.f, MaxHealth);
-        OnHealthChanged.Broadcast(Health);
+        SetHealth(Health - DamageToApply * 0.01f);
     }
     else if (!Character->IsPlayerInCostume())
     {
-        Health = FMath::Clamp(Health - DamageToApply * 0.1f, 0.f, MaxHealth);
-        OnHealthChanged.Broadcast(Health);
+        SetHealth(Health - DamageToApply * 0.1f);
     }
 
     if (IsDead() && bCanToBroadcast)
     {
         bCanToBroadcast = false;
         OnDeath.Broadcast();
+    }
+    else if (bAutoHeal)
+    {
+        GetWorld()->GetTimerManager().SetTimer(
+            HealTimerHandle, this, &UIAPlayerHealthComponent::HealUpdate, HealUpdateTime, true, HealthHealDelay);
     }
 }
 
@@ -77,4 +80,25 @@ void UIAPlayerHealthComponent::StartContinuousDamage()
 void UIAPlayerHealthComponent::StopContinuousDamage()
 {
     GetWorld()->GetTimerManager().ClearTimer(ContinuousDamageTimerHandle);
+}
+
+void UIAPlayerHealthComponent::HealUpdate()
+{
+    SetHealth(Health + HealModifier);
+
+    if (FMath::IsNearlyEqual(Health, MaxHealth) && GetWorld())
+    {
+        StopHeal();
+    }
+}
+
+void UIAPlayerHealthComponent::StopHeal()
+{
+    GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
+}
+
+void UIAPlayerHealthComponent::SetHealth(float Value)
+{
+    Health = FMath::Clamp(Value, 0.f, MaxHealth);
+    OnHealthChanged.Broadcast(Health);
 }

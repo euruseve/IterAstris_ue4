@@ -33,7 +33,7 @@ public:
     float GetHealth() const { return Health; };
 
     UFUNCTION(BlueprintCallable)
-    bool IsDead() const { return Health <= 0.f; };
+    bool IsDead() const { return FMath::IsNearlyZero(Health); };
 
     FOnDeath OnDeath;
     FOnHealthChanged OnHealthChanged;
