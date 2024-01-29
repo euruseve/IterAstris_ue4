@@ -32,6 +32,16 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Toxin")
     float DecreasingDelay = 1.f;
 
+    virtual void UpdateToxinLevel(){};
+
+    virtual void DecreaseToxinLevel(){};
+
+    float InCurrentZoneToxinLvl = 0.f;
+    bool bIsInIntoxicationZone = false;
+
+    AActor* OwnerActor;
+    FTimerHandle ToxinUpdateTimerHandle;
+
     virtual void BeginPlay() override;
 
 public:
@@ -41,19 +51,7 @@ public:
     FORCEINLINE bool IsInIntoxicationZone() const { return bIsInIntoxicationZone; };
     FORCEINLINE float GetToxinLevel() const { return OwnToxinLvl; };
    
-    void SetCurrentZoneToxinLevel(float NewToxinLvl);
+    virtual void SetCurrentZoneToxinLevel(float NewToxinLvl);
 
-    void HandleZoneStateChanged(bool InZone);
-
-private:
-    void UpdateToxinLevel();
-
-    UFUNCTION()
-    void DecreaseToxinLevel();
-
-    float InCurrentZoneToxinLvl = 0.f;
-    bool bIsInIntoxicationZone = false;
-
-    AActor* OwnerActor;
-    FTimerHandle ToxinUpdateTimerHandle;
+    virtual void HandleZoneStateChanged(bool InZone);
 };

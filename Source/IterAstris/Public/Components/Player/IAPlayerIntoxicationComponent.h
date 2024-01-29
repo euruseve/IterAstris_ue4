@@ -6,12 +6,23 @@
 #include "Components/IAIntoxicationComponent.h"
 #include "IAPlayerIntoxicationComponent.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class ITERASTRIS_API UIAPlayerIntoxicationComponent : public UIAIntoxicationComponent
 {
-	GENERATED_BODY()
-	
+    GENERATED_BODY()
+
+public:
+    UIAPlayerIntoxicationComponent();
+
+protected:
+    virtual void UpdateToxinLevel();
+
+    virtual void DecreaseToxinLevel();
+
+    virtual void BeginPlay() override;
+
+public:
+    virtual void SetCurrentZoneToxinLevel(float NewToxinLvl);
+    virtual void HandleZoneStateChanged(bool InZone) override;
+
 };

@@ -8,10 +8,8 @@
 
 class UCameraComponent;
 class USpringArmComponent;
-class UIAHealthComponent;
-class UIAPlayerHealthComponent;
 class UTextRenderComponent;
-class UIAIntoxicationComponent;
+class UIAPlayerHealthComponent;
 class UIAPlayerIntoxicationComponent;
 
 UENUM(BlueprintType)
@@ -48,9 +46,6 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* HealthTextComponent;
-
-    //UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    //UIAIntoxicationComponent* IntoxicationComponent;
     
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UIAPlayerIntoxicationComponent* PlayerIntoxicationComponent;

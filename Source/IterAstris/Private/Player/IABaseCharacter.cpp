@@ -42,7 +42,6 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthText");
     HealthTextComponent->SetupAttachment(GetRootComponent());
 
-    /*IntoxicationComponent = CreateDefaultSubobject<UIAIntoxicationComponent>("IntoxicationComponent");*/
     PlayerIntoxicationComponent = CreateDefaultSubobject<UIAPlayerIntoxicationComponent>("PlayerIntoxicationComponent");
 
     IntoxicationTextComponent = CreateDefaultSubobject<UTextRenderComponent>("IntoxicationText");
@@ -54,7 +53,6 @@ void AIABaseCharacter::BeginPlay()
     Super::BeginPlay();
     
     check(PlayerHealthComponent);
-    //check(IntoxicationComponent);
     check(PlayerIntoxicationComponent);
 }
 
