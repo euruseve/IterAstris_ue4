@@ -17,6 +17,11 @@ void UIAPlayerHealthComponent::BeginPlay()
 
     check(OwnerActor);
 
+    if (OwnerActor)
+    {
+        OwnerActor->OnTakeAnyDamage.AddDynamic(this, &UIAPlayerHealthComponent::OnTakeAnyDamageHandle);
+    }
+
     UIAPlayerIntoxicationComponent* Intoxication = OwnerActor->FindComponentByClass<UIAPlayerIntoxicationComponent>();
     if (Intoxication)
     {
@@ -63,8 +68,7 @@ void UIAPlayerHealthComponent::ApplyContinuousDamage()
     }
     else if (bAutoHeal)
     {
-        GetWorld()->GetTimerManager().SetTimer(
-            HealTimerHandle, this, &UIAPlayerHealthComponent::HealUpdate, HealUpdateTime, true, HealthHealDelay);
+        StartHeal();
     }
 }
 
@@ -92,6 +96,12 @@ void UIAPlayerHealthComponent::HealUpdate()
     }
 }
 
+void UIAPlayerHealthComponent::StartHeal()
+{
+    GetWorld()->GetTimerManager().SetTimer(
+        HealTimerHandle, this, &UIAPlayerHealthComponent::HealUpdate, HealUpdateTime, true, HealthHealDelay);
+}
+
 void UIAPlayerHealthComponent::StopHeal()
 {
     GetWorld()->GetTimerManager().ClearTimer(HealTimerHandle);
@@ -101,4 +111,25 @@ void UIAPlayerHealthComponent::SetHealth(float Value)
 {
     Health = FMath::Clamp(Value, 0.f, MaxHealth);
     OnHealthChanged.Broadcast(Health);
+}
+
+void UIAPlayerHealthComponent::OnTakeAnyDamageHandle(
+    AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+    if (Damage <= 0.f || IsDead() || !GetWorld())
+        return;
+
+    StopHeal();
+
+    if (IsDead() || FMath::IsNearlyZero(Health))
+    {
+        OnDeath.Broadcast();
+    }
+    else if (bAutoHeal)
+    {
+        StartHeal();
+    }
+
+    // UE_LOG(LogPlayerHealthComponent, Display, TEXT("TYT %f"), Damage);
+    SetHealth(Health - Damage);
 }

@@ -51,7 +51,7 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
 void AIABaseCharacter::BeginPlay()
 {
     Super::BeginPlay();
-    
+
     check(PlayerHealthComponent);
     check(PlayerIntoxicationComponent);
     check(GetCharacterMovement());
@@ -61,6 +61,8 @@ void AIABaseCharacter::BeginPlay()
     PlayerHealthComponent->OnHealthChanged.AddUObject(this, &AIABaseCharacter::OnHealthChanged);
 
     PlayerIntoxicationComponent->OnToxinLevelChanged.AddDynamic(this, &AIABaseCharacter::OnToxinLevelChanged);
+
+    LandedDelegate.AddDynamic(this, &AIABaseCharacter::OnGroundLanded);
 
     check(PlayerModels.BaseMesh);
     check(PlayerModels.SpaceSuitMesh);
@@ -100,8 +102,7 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAxis("TurnAroundRate", this, &AIABaseCharacter::TurnAroundRate);
 }
 
-
-void AIABaseCharacter::OnHealthChanged(float Health) 
+void AIABaseCharacter::OnHealthChanged(float Health)
 {
     HealthTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), Health)));
 }
@@ -111,6 +112,16 @@ void AIABaseCharacter::OnToxinLevelChanged(float OwnToxinLvl)
     IntoxicationTextComponent->SetText(FText::FromString(FString::Printf(TEXT("%.0f"), OwnToxinLvl)));
 }
 
+void AIABaseCharacter::OnGroundLanded(const FHitResult& Hit)
+{
+    const auto FallVelocityZ = -GetVelocity().Z;
+    if (FallVelocityZ < LandedDamageVelocity.X)
+        return;
+
+    const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
+   
+    TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
+}
 
 void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType)
 {
@@ -144,7 +155,6 @@ void AIABaseCharacter::MoveRight(float Amount)
     Move(Amount, FVector::RightVector, EAxis::Y);
 }
 
-
 void AIABaseCharacter::OnStartRunning()
 {
     bWantsToRun = true;
@@ -160,19 +170,17 @@ bool AIABaseCharacter::IsRunning() const
     return bWantsToRun && !GetVelocity().IsZero();
 }
 
-
 void AIABaseCharacter::OnStartJumping()
 {
     bCanWearCostume = false;
     Jump();
 }
 
-void AIABaseCharacter::OnStopJumping() 
+void AIABaseCharacter::OnStopJumping()
 {
     StopJumping();
     bCanWearCostume = true;
 }
-
 
 void AIABaseCharacter::LookUp(float Amount)
 {
@@ -199,7 +207,6 @@ void AIABaseCharacter::TurnAroundRate(float Rate)
     if (CameraView == ECameraView::ThirdPersonView)
         AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
-
 
 void AIABaseCharacter::CameraZoom(float Amount)
 {
@@ -274,8 +281,7 @@ void AIABaseCharacter::FullCameraSettingsReset()
     SetCameraViewSettings();
 }
 
-
-void AIABaseCharacter::ChangeCostumeMode() 
+void AIABaseCharacter::ChangeCostumeMode()
 {
     if (IsRunning() || !bCanWearCostume)
         return;
@@ -301,7 +307,6 @@ bool AIABaseCharacter::IsPlayerInCostume() const
     return PlayerSuitMode == EPlayerSuitMode::SpaceSuit;
 }
 
-
 void AIABaseCharacter::OnDeath()
 {
     bCanWearCostume = false;
@@ -315,8 +320,9 @@ void AIABaseCharacter::OnDeath()
     SetLifeSpan(10.f);
 }
 
-void AIABaseCharacter::OnDeathCameraChange() 
+void AIABaseCharacter::OnDeathCameraChange()
 {
     CameraView = ECameraView::ThirdPersonView;
     SpringArmComponent->TargetArmLength = 450;
 }
+

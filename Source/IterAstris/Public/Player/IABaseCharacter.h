@@ -89,7 +89,14 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
     UAnimMontage* SuitModeAnimMintage;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    FVector2D LandedDamageVelocity{1200.f, 1500.f};
+
+    UPROPERTY(EditDefaultsOnly, Category = "Damage")
+    FVector2D LandedDamage{10.f, 80.f};
+
     virtual void BeginPlay() override;
+
 public:
     virtual void Tick(float DeltaTime) override;
 
@@ -108,6 +115,8 @@ private:
     UFUNCTION()
     void OnToxinLevelChanged(float OwnToxinLvl);
     void OnHealthChanged(float Health);
+    UFUNCTION()
+    void OnGroundLanded(const FHitResult& Hit);
 
     void Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType);
     void MoveForward(float Amount);
