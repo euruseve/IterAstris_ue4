@@ -7,10 +7,9 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Components/IACharacterMovementComponent.h"
-
+#include "Weapons/IABaseWeapon.h"
 #include "Components/Player/IAPlayerHealthComponent.h"
 #include "Components/Player/IAPlayerIntoxicationComponent.h"
-#include "Components/IAIntoxicationComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
@@ -89,6 +88,8 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("ChangeCameraView", IE_Pressed, this, &AIABaseCharacter::ChangeCameraView);
 
     PlayerInputComponent->BindAction("ChangeCostumeMode", IE_Pressed, this, &AIABaseCharacter::ChangeCostumeMode);
+
+    PlayerInputComponent->BindAction("EquipWeapon", IE_Pressed, this, &AIABaseCharacter::EquipWeapon);
 
     PlayerInputComponent->BindAxis("CameraZoom", this, &AIABaseCharacter::CameraZoom);
 
@@ -281,6 +282,7 @@ void AIABaseCharacter::FullCameraSettingsReset()
     SetCameraViewSettings();
 }
 
+
 void AIABaseCharacter::ChangeCostumeMode()
 {
     if (IsRunning() || !bCanWearCostume)
@@ -307,6 +309,7 @@ bool AIABaseCharacter::IsPlayerInCostume() const
     return PlayerSuitMode == EPlayerSuitMode::SpaceSuit;
 }
 
+
 void AIABaseCharacter::OnDeath()
 {
     bCanWearCostume = false;
@@ -324,5 +327,35 @@ void AIABaseCharacter::OnDeathCameraChange()
 {
     CameraView = ECameraView::ThirdPersonView;
     SpringArmComponent->TargetArmLength = 450;
+}
+
+
+void AIABaseCharacter::EquipWeapon() 
+{
+    bHasWeapon = !bHasWeapon;
+
+    if (bHasWeapon)
+    {
+        SpawnWeapon();
+    }
+    else
+    {
+        DestroyActor()
+    }
+
+    UE_LOG(LogBaseCharacter, Display, TEXT("HasWeapon is: %s"), (bHasWeapon ? TEXT("TRUE") : TEXT("FALSE")));
+}
+
+void AIABaseCharacter::SpawnWeapon() 
+{
+    if (!GetWorld())
+        return;
+
+    const auto WeaponObj = GetWorld()->SpawnActor<AIABaseWeapon>(Weapon);
+    if (WeaponObj)
+    {
+        FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, false);
+        WeaponObj->AttachToComponent(GetMesh(), AttachmentRules, "RWeaponSocket");
+    }
 }
 

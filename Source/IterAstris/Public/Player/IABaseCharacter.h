@@ -11,6 +11,7 @@ class USpringArmComponent;
 class UTextRenderComponent;
 class UIAPlayerHealthComponent;
 class UIAPlayerIntoxicationComponent;
+class AIABaseWeapon;
 
 UENUM(BlueprintType)
 enum class ECameraView : uint8
@@ -95,6 +96,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     FVector2D LandedDamage{10.f, 80.f};
 
+    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
+    TSubclassOf<AIABaseWeapon> Weapon;
+
     virtual void BeginPlay() override;
 
 public:
@@ -105,12 +109,16 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const;
 
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    bool IsWeapon() const { return bHasWeapon; };
+
     bool IsPlayerInCostume() const;
 
 private:
     bool bWantsToRun = false;
     bool bCanWearCostume = true;
     bool bCanCameraMove = true;
+    bool bHasWeapon = false;
 
     UFUNCTION()
     void OnToxinLevelChanged(float OwnToxinLvl);
@@ -144,4 +152,8 @@ private:
 
     void OnDeath();
     void OnDeathCameraChange();
+
+
+    void EquipWeapon();
+    void SpawnWeapon();
 };
