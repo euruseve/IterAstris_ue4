@@ -16,6 +16,7 @@ class AIABaseWeapon;
 UENUM(BlueprintType)
 enum class ECameraView : uint8
 {
+    WeaponEquipedView UMETA(DisplayName = "WeaponEquiped"),
     FirstPersonView UMETA(DisplayName = "FirstPerson"),
     ThirdPersonView UMETA(DisplayName = "ThirdPerson")
 };
@@ -88,7 +89,13 @@ protected:
     UAnimMontage* DeathAnimMintage;
 
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
-    UAnimMontage* SuitModeAnimMintage;
+    UAnimMontage* SuitModeAnimMintage;    
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* EquipWeaponAnimMintage;    
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* UnequipWeaponAnimMintage;
 
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     FVector2D LandedDamageVelocity{1200.f, 1500.f};
@@ -110,11 +117,13 @@ public:
     bool IsRunning() const;
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
-    bool IsWeapon() const { return bHasWeapon; };
+    bool IsWeaponEquiped() const { return bHasWeapon; };
 
-    bool IsPlayerInCostume() const;
+    bool IsPlayerInCostume() const { return PlayerSuitMode == EPlayerSuitMode::SpaceSuit; };
 
 private:
+    AActor* SpawnedWeapon = nullptr;
+
     bool bWantsToRun = false;
     bool bCanWearCostume = true;
     bool bCanCameraMove = true;
@@ -153,7 +162,8 @@ private:
     void OnDeath();
     void OnDeathCameraChange();
 
-
+    void WeaponMode();
     void EquipWeapon();
-    void SpawnWeapon();
+    void UnequipWeapon();
+    void MoveWeapon(FName SocetName);
 };

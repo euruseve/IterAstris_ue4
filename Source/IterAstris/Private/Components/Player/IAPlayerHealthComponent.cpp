@@ -49,7 +49,7 @@ void UIAPlayerHealthComponent::ApplyContinuousDamage()
     StopHeal();
     AIABaseCharacter* Character = Cast<AIABaseCharacter>(OwnerActor);
 
-    if (!Character && GetWorld())
+    if (!Character || !GetWorld()) 
         return;
 
     if (Character->IsPlayerInCostume() && DamageToApply >= 80)

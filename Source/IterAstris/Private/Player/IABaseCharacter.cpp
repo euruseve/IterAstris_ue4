@@ -66,6 +66,8 @@ void AIABaseCharacter::BeginPlay()
     check(PlayerModels.BaseMesh);
     check(PlayerModels.SpaceSuitMesh);
 
+    MoveWeapon("SpineWeaponSocket");
+
     GetMesh()->SetSkeletalMesh(PlayerModels.BaseMesh);
 }
 
@@ -89,7 +91,7 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
     PlayerInputComponent->BindAction("ChangeCostumeMode", IE_Pressed, this, &AIABaseCharacter::ChangeCostumeMode);
 
-    PlayerInputComponent->BindAction("EquipWeapon", IE_Pressed, this, &AIABaseCharacter::EquipWeapon);
+    PlayerInputComponent->BindAction("EquipWeapon", IE_Pressed, this, &AIABaseCharacter::WeaponMode);
 
     PlayerInputComponent->BindAxis("CameraZoom", this, &AIABaseCharacter::CameraZoom);
 
@@ -120,10 +122,11 @@ void AIABaseCharacter::OnGroundLanded(const FHitResult& Hit)
         return;
 
     const auto FinalDamage = FMath::GetMappedRangeValueClamped(LandedDamageVelocity, LandedDamage, FallVelocityZ);
-   
+
     TakeDamage(FinalDamage, FDamageEvent{}, nullptr, nullptr);
 }
 
+// MOVING
 void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType)
 {
     if (Controller && (Amount != 0.f))
@@ -182,7 +185,9 @@ void AIABaseCharacter::OnStopJumping()
     StopJumping();
     bCanWearCostume = true;
 }
+//
 
+// CAMERA
 void AIABaseCharacter::LookUp(float Amount)
 {
     SetCameraViewSettings();
@@ -281,7 +286,7 @@ void AIABaseCharacter::FullCameraSettingsReset()
     ChangeCameraView();
     SetCameraViewSettings();
 }
-
+//
 
 void AIABaseCharacter::ChangeCostumeMode()
 {
@@ -304,12 +309,7 @@ void AIABaseCharacter::ChangeCostumeMode()
     }
 }
 
-bool AIABaseCharacter::IsPlayerInCostume() const
-{
-    return PlayerSuitMode == EPlayerSuitMode::SpaceSuit;
-}
-
-
+// DEATH
 void AIABaseCharacter::OnDeath()
 {
     bCanWearCostume = false;
@@ -328,34 +328,60 @@ void AIABaseCharacter::OnDeathCameraChange()
     CameraView = ECameraView::ThirdPersonView;
     SpringArmComponent->TargetArmLength = 450;
 }
+//
 
-
-void AIABaseCharacter::EquipWeapon() 
+// WEAPON
+void AIABaseCharacter::WeaponMode()
 {
     bHasWeapon = !bHasWeapon;
 
     if (bHasWeapon)
     {
-        SpawnWeapon();
+        EquipWeapon();
     }
     else
     {
-        DestroyActor()
+        UnequipWeapon();
     }
 
     UE_LOG(LogBaseCharacter, Display, TEXT("HasWeapon is: %s"), (bHasWeapon ? TEXT("TRUE") : TEXT("FALSE")));
 }
 
-void AIABaseCharacter::SpawnWeapon() 
+void AIABaseCharacter::EquipWeapon()
 {
-    if (!GetWorld())
-        return;
+    PlayAnimMontage(EquipWeaponAnimMintage);
 
-    const auto WeaponObj = GetWorld()->SpawnActor<AIABaseWeapon>(Weapon);
-    if (WeaponObj)
-    {
-        FAttachmentTransformRules AttachmentRules(EAttachmentRule::KeepRelative, false);
-        WeaponObj->AttachToComponent(GetMesh(), AttachmentRules, "RWeaponSocket");
-    }
+    // CameraView = ECameraView::WeaponEquipedView;
+
+    FTimerHandle TimerHandle;
+    GetWorldTimerManager().SetTimer(
+        TimerHandle, [this]() { MoveWeapon("RWeaponSocket"); }, 1.0f, false);
 }
 
+void AIABaseCharacter::UnequipWeapon()
+{
+    PlayAnimMontage(UnequipWeaponAnimMintage);
+
+    FTimerHandle TimerHandle;
+    GetWorldTimerManager().SetTimer(
+        TimerHandle, [this]() { MoveWeapon("SpineWeaponSocket"); }, 2.0f, false);
+}
+
+void AIABaseCharacter::MoveWeapon(FName SocetName)
+{
+    if (SpawnedWeapon)
+    {
+        SpawnedWeapon->AttachToComponent(
+            GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false), SocetName);
+    }
+    else
+    {
+        SpawnedWeapon = GetWorld()->SpawnActor<AIABaseWeapon>(Weapon);
+        if (SpawnedWeapon)
+        {
+            SpawnedWeapon->AttachToComponent(
+                GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false), SocetName);
+        }
+    }
+}
+//
