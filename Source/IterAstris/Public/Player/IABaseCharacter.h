@@ -16,16 +16,16 @@ class AIABaseWeapon;
 UENUM(BlueprintType)
 enum class ECameraView : uint8
 {
-    WeaponEquipedView UMETA(DisplayName = "WeaponEquiped"),
-    FirstPersonView UMETA(DisplayName = "FirstPerson"),
-    ThirdPersonView UMETA(DisplayName = "ThirdPerson")
+    WeaponEquipedView UMETA(DisplayName = "Weapon Equiped"),
+    FirstPersonView UMETA(DisplayName = "First Person"),
+    ThirdPersonView UMETA(DisplayName = "Third Person")
 };
 
 UENUM(BlueprintType)
 enum class EPlayerSuitMode : uint8
 {
-    WithoutSuit UMETA(DisplayName = "WithoutSuit"),
-    SpaceSuit UMETA(DisplayName = "SpaceSuit")
+    WithoutSuit UMETA(DisplayName = "Without Suit"),
+    SpaceSuit UMETA(DisplayName = "Space Suit")
 };
 
 USTRUCT(BlueprintType)
@@ -40,6 +40,24 @@ public:
     USkeletalMesh* SpaceSuitMesh;
 };
 
+USTRUCT(BlueprintType)
+struct FPlayerAnimations
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* DeathAnimMintage;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* SuitModeAnimMintage;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* EquipWeaponAnimMintage;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* UnequipWeaponAnimMintage;
+};
+
 UCLASS()
 class ITERASTRIS_API AIABaseCharacter : public ACharacter
 {
@@ -50,7 +68,10 @@ public:
 
 protected:
     UPROPERTY(EditDefaultsOnly, Category = "Models")
-    FPlayerModels PlayerModels;
+    FPlayerModels PlayerModels;    
+    
+    UPROPERTY(EditDefaultsOnly, Category = "Animations")
+    FPlayerAnimations PlayerAnims;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Mode")
     EPlayerSuitMode PlayerSuitMode;
@@ -85,18 +106,6 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
     float CurrentTargetArmLenght;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Animation")
-    UAnimMontage* DeathAnimMintage;
-
-    UPROPERTY(EditDefaultsOnly, Category = "Animation")
-    UAnimMontage* SuitModeAnimMintage;    
-    
-    UPROPERTY(EditDefaultsOnly, Category = "Animation")
-    UAnimMontage* EquipWeaponAnimMintage;    
-    
-    UPROPERTY(EditDefaultsOnly, Category = "Animation")
-    UAnimMontage* UnequipWeaponAnimMintage;
-
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     FVector2D LandedDamageVelocity{1200.f, 1500.f};
 
@@ -114,7 +123,10 @@ public:
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
-    bool IsRunning() const;
+    bool IsRunning() const; 
+    
+    UFUNCTION(BlueprintCallable, Category = "Movement")
+    float GetMovementDirection() const;
 
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsWeaponEquiped() const { return bHasWeapon; };
@@ -123,6 +135,8 @@ public:
 
 private:
     AActor* SpawnedWeapon = nullptr;
+    FTimerHandle ChangeSocketTimerHandle;
+
 
     bool bWantsToRun = false;
     bool bCanWearCostume = true;
@@ -152,6 +166,10 @@ private:
     void LookUpRate(float Rate);
 
     void CameraZoom(float Amount);
+    void FirstPersonZoom(float Amount);
+    void ThirdPersonZoom(float Amount);
+    void WeaponModeZoom(float Amount);
+    void ChangeSocketOffsetY(float Offset);
     void ChangeCameraView();
     void SetCameraViewSettings();
 

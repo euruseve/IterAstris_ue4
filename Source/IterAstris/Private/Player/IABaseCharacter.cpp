@@ -66,7 +66,7 @@ void AIABaseCharacter::BeginPlay()
     check(PlayerModels.BaseMesh);
     check(PlayerModels.SpaceSuitMesh);
 
-    MoveWeapon("SpineWeaponSocket");
+    // MoveWeapon("SpineWeaponSocket");
 
     GetMesh()->SetSkeletalMesh(PlayerModels.BaseMesh);
 }
@@ -139,7 +139,7 @@ void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis:
 
             AddMovementInput(MovementDirection, Amount);
         }
-        else if (CameraView == ECameraView::FirstPersonView)
+        else if (CameraView == ECameraView::FirstPersonView || CameraView == ECameraView::WeaponEquipedView)
         {
             if (Direction == FVector::ForwardVector)
                 AddMovementInput(GetActorForwardVector(), Amount);
@@ -172,6 +172,18 @@ void AIABaseCharacter::OnStopRunning()
 bool AIABaseCharacter::IsRunning() const
 {
     return bWantsToRun && !GetVelocity().IsZero();
+}
+
+float AIABaseCharacter::GetMovementDirection() const
+{
+    if (GetVelocity().IsZero())
+        return 0.f;
+
+    const auto VelocityNormal = GetVelocity().GetSafeNormal();
+    const auto AngleBetween = FMath::Acos(FVector::DotProduct(GetActorForwardVector(), VelocityNormal));
+    const auto CrossProduct = FVector::CrossProduct(GetActorForwardVector(), VelocityNormal);
+    const auto Degrees = FMath::RadiansToDegrees(AngleBetween);
+    return CrossProduct.IsZero() ? Degrees : Degrees * FMath::Sign(CrossProduct.Z);
 }
 
 void AIABaseCharacter::OnStartJumping()
@@ -221,26 +233,47 @@ void AIABaseCharacter::CameraZoom(float Amount)
 
     if (CameraView == ECameraView::ThirdPersonView)
     {
-        float ZoomLenght = SpringArmComponent->TargetArmLength + (Amount * -10);
-        CurrentTargetArmLenght = FMath::Clamp(ZoomLenght, 199.f, 500.f);
-        SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
-
-        if (CurrentTargetArmLenght < 200.f)
-        {
-            CurrentTargetArmLenght = DefaultTargetArmLenght;
-            FullCameraSettingsReset();
-        }
+        ThirdPersonZoom(Amount);
     }
     else if (CameraView == ECameraView::FirstPersonView)
     {
-        if (Amount < 0)
-        {
-            CurrentTargetArmLenght = 200.f;
-            SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
-
-            FullCameraSettingsReset();
-        }
+        FirstPersonZoom(Amount);
     }
+    else if (CameraView == ECameraView::WeaponEquipedView)
+    {
+        WeaponModeZoom(Amount);
+    }
+}
+
+void AIABaseCharacter::FirstPersonZoom(float Amount)
+{
+    if (Amount < 0)
+    {
+        CurrentTargetArmLenght = 200.f;
+        SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
+
+        FullCameraSettingsReset();
+    }
+}
+
+void AIABaseCharacter::ThirdPersonZoom(float Amount)
+{
+    float ZoomLenght = SpringArmComponent->TargetArmLength + (Amount * -10);
+    CurrentTargetArmLenght = FMath::Clamp(ZoomLenght, 199.f, 500.f);
+    SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
+
+    if (CurrentTargetArmLenght < 200.f)
+    {
+        CurrentTargetArmLenght = DefaultTargetArmLenght;
+        FullCameraSettingsReset();
+    }
+}
+
+void AIABaseCharacter::WeaponModeZoom(float Amount)
+{
+    float ZoomLenght = SpringArmComponent->TargetArmLength + (Amount * -10);
+    CurrentTargetArmLenght = FMath::Clamp(ZoomLenght, 300.f, 400.f);
+    SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
 }
 
 void AIABaseCharacter::ChangeCameraView()
@@ -252,12 +285,14 @@ void AIABaseCharacter::ChangeCameraView()
     {
         CameraView = ECameraView::ThirdPersonView;
         SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
+
         UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to TP"));
     }
     else if (CameraView == ECameraView::ThirdPersonView)
     {
         CameraView = ECameraView::FirstPersonView;
         SpringArmComponent->TargetArmLength = 0;
+
         UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to FP"));
     }
 }
@@ -273,11 +308,11 @@ void AIABaseCharacter::SetCameraViewSettings()
         GetCharacterMovement()->bOrientRotationToMovement = true;
         // GetMesh()->SetOwnerNoSee(false);
     }
-    else if (CameraView == ECameraView::FirstPersonView)
+    else if (CameraView == ECameraView::WeaponEquipedView || CameraView == ECameraView::FirstPersonView)
     {
         bUseControllerRotationYaw = true;
         GetCharacterMovement()->bOrientRotationToMovement = false;
-        // GetMesh()->SetOwnerNoSee(true);
+        // GetMesh()->SetOwnerNoSee(false);
     }
 }
 
@@ -286,14 +321,17 @@ void AIABaseCharacter::FullCameraSettingsReset()
     ChangeCameraView();
     SetCameraViewSettings();
 }
+
+void AIABaseCharacter::ChangeSocketOffsetY(float Offset)
+{
+    SpringArmComponent->SocketOffset.Y = Offset;
+}
 //
 
 void AIABaseCharacter::ChangeCostumeMode()
 {
     if (IsRunning() || !bCanWearCostume)
         return;
-
-    PlayAnimMontage(SuitModeAnimMintage);
 
     if (PlayerSuitMode == EPlayerSuitMode::SpaceSuit)
     {
@@ -307,6 +345,7 @@ void AIABaseCharacter::ChangeCostumeMode()
         GetMesh()->SetSkeletalMesh(PlayerModels.SpaceSuitMesh);
         UE_LOG(LogBaseCharacter, Display, TEXT("Costume mode"));
     }
+    PlayAnimMontage(PlayerAnims.SuitModeAnimMintage);
 }
 
 // DEATH
@@ -317,7 +356,7 @@ void AIABaseCharacter::OnDeath()
     OnDeathCameraChange();
 
     UE_LOG(LogBaseCharacter, Display, TEXT("DEAD"));
-    PlayAnimMontage(DeathAnimMintage);
+    PlayAnimMontage(PlayerAnims.DeathAnimMintage);
     GetCharacterMovement()->DisableMovement();
 
     SetLifeSpan(10.f);
@@ -337,10 +376,13 @@ void AIABaseCharacter::WeaponMode()
 
     if (bHasWeapon)
     {
+        ChangeSocketOffsetY(75.f);
         EquipWeapon();
+        // UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to WM"));
     }
     else
     {
+        ChangeSocketOffsetY(0.f);
         UnequipWeapon();
     }
 
@@ -349,9 +391,9 @@ void AIABaseCharacter::WeaponMode()
 
 void AIABaseCharacter::EquipWeapon()
 {
-    PlayAnimMontage(EquipWeaponAnimMintage);
+    PlayAnimMontage(PlayerAnims.EquipWeaponAnimMintage);
 
-    // CameraView = ECameraView::WeaponEquipedView;
+    CameraView = ECameraView::WeaponEquipedView;
 
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
@@ -360,7 +402,9 @@ void AIABaseCharacter::EquipWeapon()
 
 void AIABaseCharacter::UnequipWeapon()
 {
-    PlayAnimMontage(UnequipWeaponAnimMintage);
+    PlayAnimMontage(PlayerAnims.UnequipWeaponAnimMintage);
+
+    CameraView = ECameraView::ThirdPersonView;
 
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
