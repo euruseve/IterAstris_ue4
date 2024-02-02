@@ -18,6 +18,7 @@ public class IterAstris : ModuleRules
             "IterAstris/Public/Components/Player",
             "IterAstris/Public/DamageZones",
             "IterAstris/Public/Weapons",
+            "IterAstris/Public/UI",
             "IterAstris/Public/DamageTypes"
         });
 
