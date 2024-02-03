@@ -11,7 +11,8 @@ class USpringArmComponent;
 class UTextRenderComponent;
 class UIAPlayerHealthComponent;
 class UIAPlayerIntoxicationComponent;
-class AIABaseWeapon;
+class UIAWeaponComponent;
+
 
 UENUM(BlueprintType)
 enum class ECameraView : uint8
@@ -94,6 +95,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UTextRenderComponent* IntoxicationTextComponent;
 
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UIAWeaponComponent* WeaponComponent;
+
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
     ECameraView CameraView;
 
@@ -111,9 +115,6 @@ protected:
 
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     FVector2D LandedDamage{10.f, 80.f};
-
-    UPROPERTY(EditDefaultsOnly, Category = "Weapon")
-    TSubclassOf<AIABaseWeapon> Weapon;
 
     virtual void BeginPlay() override;
 
@@ -136,7 +137,6 @@ public:
 private:
     AActor* SpawnedWeapon = nullptr;
     FTimerHandle ChangeSocketTimerHandle;
-
 
     bool bWantsToRun = false;
     bool bCanWearCostume = true;
@@ -180,8 +180,8 @@ private:
     void OnDeath();
     void OnDeathCameraChange();
 
+    void Fire();
     void WeaponMode();
     void EquipWeapon();
     void UnequipWeapon();
-    void MoveWeapon(FName SocetName);
 };

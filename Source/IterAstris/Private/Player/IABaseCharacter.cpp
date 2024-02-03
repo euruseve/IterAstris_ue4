@@ -3,6 +3,7 @@
 #include "Player/IABaseCharacter.h"
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
+#include "Components/CapsuleComponent.h"
 #include "Components/TextRenderComponent.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -10,6 +11,7 @@
 #include "Weapons/IABaseWeapon.h"
 #include "Components/Player/IAPlayerHealthComponent.h"
 #include "Components/Player/IAPlayerIntoxicationComponent.h"
+#include "Components/IAWeaponComponent.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
@@ -45,6 +47,8 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
 
     IntoxicationTextComponent = CreateDefaultSubobject<UTextRenderComponent>("IntoxicationText");
     IntoxicationTextComponent->SetupAttachment(GetRootComponent());
+
+    WeaponComponent = CreateDefaultSubobject<UIAWeaponComponent>("WeaponComponent");
 }
 
 void AIABaseCharacter::BeginPlay()
@@ -53,6 +57,7 @@ void AIABaseCharacter::BeginPlay()
 
     check(PlayerHealthComponent);
     check(PlayerIntoxicationComponent);
+    check(WeaponComponent);
     check(GetCharacterMovement());
 
     OnHealthChanged(PlayerHealthComponent->GetHealth());
@@ -65,8 +70,6 @@ void AIABaseCharacter::BeginPlay()
 
     check(PlayerModels.BaseMesh);
     check(PlayerModels.SpaceSuitMesh);
-
-    // MoveWeapon("SpineWeaponSocket");
 
     GetMesh()->SetSkeletalMesh(PlayerModels.BaseMesh);
 }
@@ -92,6 +95,8 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("ChangeCostumeMode", IE_Pressed, this, &AIABaseCharacter::ChangeCostumeMode);
 
     PlayerInputComponent->BindAction("EquipWeapon", IE_Pressed, this, &AIABaseCharacter::WeaponMode);
+
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AIABaseCharacter::Fire);
 
     PlayerInputComponent->BindAxis("CameraZoom", this, &AIABaseCharacter::CameraZoom);
 
@@ -353,13 +358,18 @@ void AIABaseCharacter::OnDeath()
 {
     bCanWearCostume = false;
     bCanCameraMove = false;
+    bHasWeapon = false;
+
     OnDeathCameraChange();
 
     UE_LOG(LogBaseCharacter, Display, TEXT("DEAD"));
+
     PlayAnimMontage(PlayerAnims.DeathAnimMintage);
     GetCharacterMovement()->DisableMovement();
 
     SetLifeSpan(10.f);
+
+    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 
 void AIABaseCharacter::OnDeathCameraChange()
@@ -370,6 +380,12 @@ void AIABaseCharacter::OnDeathCameraChange()
 //
 
 // WEAPON
+void AIABaseCharacter::Fire()
+{
+    if (bHasWeapon)
+        WeaponComponent->Fire();
+}
+
 void AIABaseCharacter::WeaponMode()
 {
     bHasWeapon = !bHasWeapon;
@@ -378,7 +394,6 @@ void AIABaseCharacter::WeaponMode()
     {
         ChangeSocketOffsetY(75.f);
         EquipWeapon();
-        // UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to WM"));
     }
     else
     {
@@ -397,7 +412,7 @@ void AIABaseCharacter::EquipWeapon()
 
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
-        TimerHandle, [this]() { MoveWeapon("RWeaponSocket"); }, 1.0f, false);
+        TimerHandle, [this]() { WeaponComponent->SetWeapon("RWeaponSocket"); }, 1.0f, false);
 }
 
 void AIABaseCharacter::UnequipWeapon()
@@ -408,24 +423,7 @@ void AIABaseCharacter::UnequipWeapon()
 
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
-        TimerHandle, [this]() { MoveWeapon("SpineWeaponSocket"); }, 2.0f, false);
+        TimerHandle, [this]() { WeaponComponent->SetWeapon("SpineWeaponSocket"); }, 2.0f, false);
 }
 
-void AIABaseCharacter::MoveWeapon(FName SocetName)
-{
-    if (SpawnedWeapon)
-    {
-        SpawnedWeapon->AttachToComponent(
-            GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false), SocetName);
-    }
-    else
-    {
-        SpawnedWeapon = GetWorld()->SpawnActor<AIABaseWeapon>(Weapon);
-        if (SpawnedWeapon)
-        {
-            SpawnedWeapon->AttachToComponent(
-                GetMesh(), FAttachmentTransformRules(EAttachmentRule::KeepRelative, false), SocetName);
-        }
-    }
-}
 //
