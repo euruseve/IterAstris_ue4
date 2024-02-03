@@ -38,12 +38,20 @@ void UIAWeaponComponent::SpawnWeapon(FName SocetName)
     CurrentWeapon->SetOwner(Character);
 }
 
-void UIAWeaponComponent::Fire() 
+void UIAWeaponComponent::StartFire() 
 {
     if (!CurrentWeapon)
         return;
 
-    CurrentWeapon->Fire();
+    CurrentWeapon->StartFire();
+}
+
+void UIAWeaponComponent::StopFire()
+{
+    if (!CurrentWeapon)
+        return;
+
+    CurrentWeapon->StopFire();
 }
 
 void UIAWeaponComponent::SetWeapon(FName SocketName)

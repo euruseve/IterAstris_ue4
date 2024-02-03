@@ -180,7 +180,9 @@ private:
     void OnDeath();
     void OnDeathCameraChange();
 
-    void Fire();
+    void StartFire();
+    void StopFire();
+
     void WeaponMode();
     void EquipWeapon();
     void UnequipWeapon();

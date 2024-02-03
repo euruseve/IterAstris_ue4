@@ -96,7 +96,8 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
     PlayerInputComponent->BindAction("EquipWeapon", IE_Pressed, this, &AIABaseCharacter::WeaponMode);
 
-    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AIABaseCharacter::Fire);
+    PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AIABaseCharacter::StartFire);
+    PlayerInputComponent->BindAction("Fire", IE_Released, this, &AIABaseCharacter::StopFire);
 
     PlayerInputComponent->BindAxis("CameraZoom", this, &AIABaseCharacter::CameraZoom);
 
@@ -377,10 +378,15 @@ void AIABaseCharacter::OnDeathCameraChange()
 //
 
 // WEAPON
-void AIABaseCharacter::Fire()
+void AIABaseCharacter::StartFire()
 {
     if (bHasWeapon)
-        WeaponComponent->Fire();
+        WeaponComponent->StartFire();
+}
+
+void AIABaseCharacter::StopFire()
+{
+    WeaponComponent->StopFire();
 }
 
 void AIABaseCharacter::WeaponMode()

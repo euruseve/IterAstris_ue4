@@ -23,7 +23,8 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    void Fire();
+    void StartFire();
+    void StopFire();
     void SetWeapon(FName SocketName);
 
 private:

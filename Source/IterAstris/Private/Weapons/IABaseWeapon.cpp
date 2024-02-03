@@ -21,12 +21,16 @@ void AIABaseWeapon::BeginPlay()
     check(WeaponMesh);
 }
 
-void AIABaseWeapon::Fire()
+void AIABaseWeapon::StartFire()
 {
     MakeShot();
-    UE_LOG(LogBaseWeapon, Warning, TEXT("SHOOOOOOOOT"));
+    GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &AIABaseWeapon::MakeShot, TimeBetweenShots, true);
 }
 
+void AIABaseWeapon::StopFire()
+{
+    GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+}
 void AIABaseWeapon::MakeShot()
 {
     if (!GetWorld())
@@ -84,7 +88,8 @@ bool AIABaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
         return false;
 
     TraceStart = ViewLocation;
-    const FVector ShootDirection = ViewRotation.Vector();
+    const auto HalfRad = FMath::DegreesToRadians(BulletSpread);
+    const FVector ShootDirection = FMath::VRandCone( ViewRotation.Vector(), HalfRad);
     TraceEnd = TraceStart + ShootDirection * TraceMaxDistance;
     return true;
 }

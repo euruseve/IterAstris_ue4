@@ -22,10 +22,16 @@ protected:
     FName SocketName = "MuzzleSocket";
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float TraceMaxDistance = 1500.f;    
-    
+    float TraceMaxDistance = 1500.f;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
     float DamageAmount = 10.f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    float TimeBetweenShots = .5f;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    float BulletSpread = 1.5f;
 
     virtual void BeginPlay() override;
 
@@ -41,5 +47,9 @@ protected:
     void MakeDamage(const FHitResult& HitResult);
 
 public:
-    virtual void Fire();
+    virtual void StartFire();
+    virtual void StopFire();
+
+private:
+    FTimerHandle ShotTimerHandle;
 };
