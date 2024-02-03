@@ -21,40 +21,15 @@ void AIABaseWeapon::BeginPlay()
     check(WeaponMesh);
 }
 
-void AIABaseWeapon::StartFire()
-{
-    MakeShot();
-    GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &AIABaseWeapon::MakeShot, TimeBetweenShots, true);
+void AIABaseWeapon::StartFire() {
 }
 
-void AIABaseWeapon::StopFire()
-{
-    GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+void AIABaseWeapon::StopFire() {
 }
-void AIABaseWeapon::MakeShot()
-{
-    if (!GetWorld())
-        return;
-
-    FVector TraceStart, TraceEnd;
-
-    if (!GetTraceData(TraceStart, TraceEnd))
-        return;
-
-    FHitResult HitResult;
-    MakeHit(HitResult, TraceStart, TraceEnd);
-
-    if (HitResult.bBlockingHit)
-    {
-        MakeDamage(HitResult);
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), HitResult.ImpactPoint, FColor::Yellow, false, 3.f, 0, 3.f);
-        DrawDebugSphere(GetWorld(), HitResult.ImpactPoint, 10.f, 24.f, FColor::Red, false, 5.f);
-    }
-    else
-    {
-        DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::Yellow, false, 3.f, 0, 3.f);
-    }
+void AIABaseWeapon::MakeShot() {
+    
 }
+
 
 APlayerController* AIABaseWeapon::GetPlayerController() const
 {
@@ -88,8 +63,7 @@ bool AIABaseWeapon::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const
         return false;
 
     TraceStart = ViewLocation;
-    const auto HalfRad = FMath::DegreesToRadians(BulletSpread);
-    const FVector ShootDirection = FMath::VRandCone( ViewRotation.Vector(), HalfRad);
+    const FVector ShootDirection = ViewRotation.Vector();
     TraceEnd = TraceStart + ShootDirection * TraceMaxDistance;
     return true;
 }

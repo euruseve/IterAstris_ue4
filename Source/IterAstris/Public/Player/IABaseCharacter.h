@@ -142,6 +142,7 @@ private:
     bool bCanWearCostume = true;
     bool bCanCameraMove = true;
     bool bHasWeapon = false;
+    bool bAnimationInProgress = false;
 
     UFUNCTION()
     void OnToxinLevelChanged(float OwnToxinLvl);
@@ -186,4 +187,8 @@ private:
     void WeaponMode();
     void EquipWeapon();
     void UnequipWeapon();
+
+    void InitAnimations();
+    void OnSuitChange(USkeletalMeshComponent* MeshComp);
+    void OnWeaponEquiped(USkeletalMeshComponent* MeshComp);
 };

@@ -12,6 +12,8 @@
 #include "Components/Player/IAPlayerHealthComponent.h"
 #include "Components/Player/IAPlayerIntoxicationComponent.h"
 #include "Components/IAWeaponComponent.h"
+#include "Animations/IASuitModeChangeAnimNotify.h"
+#include "Animations/IAWeaponEquipFinishAnimNotify.h"
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
@@ -72,6 +74,8 @@ void AIABaseCharacter::BeginPlay()
     check(PlayerModels.SpaceSuitMesh);
 
     GetMesh()->SetSkeletalMesh(PlayerModels.BaseMesh);
+
+    InitAnimations();
 }
 
 void AIABaseCharacter::Tick(float DeltaTime)
@@ -135,7 +139,7 @@ void AIABaseCharacter::OnGroundLanded(const FHitResult& Hit)
 // MOVING
 void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis::Type& AxisType)
 {
-    if (Controller && (Amount != 0.f))
+    if (Controller && (Amount != 0.f) && !bAnimationInProgress)
     {
         if (CameraView == ECameraView::ThirdPersonView)
         {
@@ -339,6 +343,8 @@ void AIABaseCharacter::ChangeCostumeMode()
     if (IsRunning() || !bCanWearCostume)
         return;
 
+    bAnimationInProgress = true;
+
     if (PlayerSuitMode == EPlayerSuitMode::SpaceSuit)
     {
         PlayerSuitMode = EPlayerSuitMode::WithoutSuit;
@@ -381,12 +387,16 @@ void AIABaseCharacter::OnDeathCameraChange()
 void AIABaseCharacter::StartFire()
 {
     if (bHasWeapon)
+    {
+        bCanWearCostume = false;
         WeaponComponent->StartFire();
+    }
 }
 
 void AIABaseCharacter::StopFire()
 {
     WeaponComponent->StopFire();
+    bCanWearCostume = true;
 }
 
 void AIABaseCharacter::WeaponMode()
@@ -409,6 +419,8 @@ void AIABaseCharacter::WeaponMode()
 
 void AIABaseCharacter::EquipWeapon()
 {
+    bAnimationInProgress = true;
+
     PlayAnimMontage(PlayerAnims.EquipWeaponAnimMintage);
 
     CameraView = ECameraView::WeaponEquipedView;
@@ -420,6 +432,8 @@ void AIABaseCharacter::EquipWeapon()
 
 void AIABaseCharacter::UnequipWeapon()
 {
+    bAnimationInProgress = true;
+
     PlayAnimMontage(PlayerAnims.UnequipWeaponAnimMintage);
 
     CameraView = ECameraView::ThirdPersonView;
@@ -428,5 +442,63 @@ void AIABaseCharacter::UnequipWeapon()
     GetWorldTimerManager().SetTimer(
         TimerHandle, [this]() { WeaponComponent->SetWeapon("SpineWeaponSocket"); }, 2.0f, false);
 }
+//
 
+// NOTIFIES
+void AIABaseCharacter::InitAnimations()
+{
+    if (!PlayerAnims.SuitModeAnimMintage || !PlayerAnims.EquipWeaponAnimMintage ||
+        !PlayerAnims.UnequipWeaponAnimMintage)
+        return;
+
+    // Costume
+    const auto SuitNotifyEvents = PlayerAnims.SuitModeAnimMintage->Notifies;
+    for (auto Event : SuitNotifyEvents)
+    {
+        auto SuitChangeNotif = Cast<UIASuitModeChangeAnimNotify>(Event.Notify);
+        if (SuitChangeNotif)
+        {
+            SuitChangeNotif->OnSuitNotified.AddUObject(this, &AIABaseCharacter::OnSuitChange);
+            break;
+        }
+    }
+
+    // Weapon Equip
+    const auto WeaponEqNotifyEvents = PlayerAnims.EquipWeaponAnimMintage->Notifies;
+    for (auto Event : WeaponEqNotifyEvents)
+    {
+        auto WeaponEqNotif = Cast<UIAWeaponEquipFinishAnimNotify>(Event.Notify);
+        if (WeaponEqNotif)
+        {
+            WeaponEqNotif->OnWeaponNotified.AddUObject(this, &AIABaseCharacter::OnWeaponEquiped);
+            break;
+        }
+    }
+
+    // Weapon Unequip
+    const auto WeaponUneqNotifyEvents = PlayerAnims.UnequipWeaponAnimMintage->Notifies;
+    for (auto Event : WeaponUneqNotifyEvents)
+    {
+        auto WeaponUneqNotif = Cast<UIAWeaponEquipFinishAnimNotify>(Event.Notify);
+        if (WeaponUneqNotif)
+        {
+            WeaponUneqNotif->OnWeaponNotified.AddUObject(this, &AIABaseCharacter::OnWeaponEquiped);
+            break;
+        }
+    }
+}
+
+void AIABaseCharacter::OnSuitChange(USkeletalMeshComponent* MeshComp)
+{
+    bAnimationInProgress = false;
+    UE_LOG(LogBaseCharacter, Display, TEXT("Suit Change Anim Finished"));
+}
+
+void AIABaseCharacter::OnWeaponEquiped(USkeletalMeshComponent* MeshComp)
+{
+    bAnimationInProgress = false;
+
+    if (GetMesh() == MeshComp)
+        UE_LOG(LogBaseCharacter, Display, TEXT("Weapon Equiped"))
+}
 //

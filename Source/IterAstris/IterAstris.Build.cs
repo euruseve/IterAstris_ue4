@@ -13,6 +13,7 @@ public class IterAstris : ModuleRules
         PrivateDependencyModuleNames.AddRange(new string[] { });
 
         PublicIncludePaths.AddRange(new string[] { 
+            "IterAstris/Public/Animations",
             "IterAstris/Public/Player",
             "IterAstris/Public/Components",
             "IterAstris/Public/Components/Player",
