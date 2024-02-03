@@ -49,7 +49,7 @@ void UIAPlayerHealthComponent::ApplyContinuousDamage()
     StopHeal();
     AIABaseCharacter* Character = Cast<AIABaseCharacter>(OwnerActor);
 
-    if (!Character || !GetWorld()) 
+    if (!Character || !GetWorld())
         return;
 
     if (Character->IsPlayerInCostume() && DamageToApply >= 80)
@@ -61,15 +61,7 @@ void UIAPlayerHealthComponent::ApplyContinuousDamage()
         SetHealth(Health - DamageToApply * 0.1f);
     }
 
-    if (IsDead() && bCanToBroadcast)
-    {
-        bCanToBroadcast = false;
-        OnDeath.Broadcast();
-    }
-    else if (bAutoHeal)
-    {
-        StartHeal();
-    }
+    SetDeathOrHeal();
 }
 
 void UIAPlayerHealthComponent::StartContinuousDamage()
@@ -113,23 +105,27 @@ void UIAPlayerHealthComponent::SetHealth(float Value)
     OnHealthChanged.Broadcast(Health);
 }
 
-void UIAPlayerHealthComponent::OnTakeAnyDamageHandle(
-    AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+void UIAPlayerHealthComponent::SetDeathOrHeal()
 {
-    if (Damage <= 0.f || IsDead() || !GetWorld())
-        return;
-
-    StopHeal();
-
-    if (IsDead() || FMath::IsNearlyZero(Health))
+    if (IsDead() && bCanToBroadcast)
     {
+        bCanToBroadcast = false;
         OnDeath.Broadcast();
     }
     else if (bAutoHeal)
     {
         StartHeal();
     }
+}
 
-    // UE_LOG(LogPlayerHealthComponent, Display, TEXT("TYT %f"), Damage);
+void UIAPlayerHealthComponent::OnTakeAnyDamageHandle(
+    AActor* DamagedActor, float Damage, const UDamageType* DamageType, AController* InstigatedBy, AActor* DamageCauser)
+{
+    StopHeal();
+
+    if (Damage <= 0.f)
+        return;
+
     SetHealth(Health - Damage);
+    SetDeathOrHeal();
 }

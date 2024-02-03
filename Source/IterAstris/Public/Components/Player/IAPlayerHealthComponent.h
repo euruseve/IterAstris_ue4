@@ -52,6 +52,7 @@ private:
     void StartHeal();
     void StopHeal();
     void SetHealth(float Value);
+    void SetDeathOrHeal();
 
     UFUNCTION()
     void OnTakeAnyDamageHandle(AActor* DamagedActor, float Damage, const class UDamageType* DamageType,

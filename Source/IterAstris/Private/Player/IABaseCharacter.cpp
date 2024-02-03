@@ -356,11 +356,8 @@ void AIABaseCharacter::ChangeCostumeMode()
 // DEATH
 void AIABaseCharacter::OnDeath()
 {
-    bCanWearCostume = false;
-    bCanCameraMove = false;
-    bHasWeapon = false;
-
     OnDeathCameraChange();
+    bCanWearCostume = false;
 
     UE_LOG(LogBaseCharacter, Display, TEXT("DEAD"));
 
@@ -374,8 +371,8 @@ void AIABaseCharacter::OnDeath()
 
 void AIABaseCharacter::OnDeathCameraChange()
 {
-    CameraView = ECameraView::ThirdPersonView;
-    SpringArmComponent->TargetArmLength = 450;
+    bCanCameraMove = false;
+    SpringArmComponent->TargetArmLength = 500;
 }
 //
 
