@@ -344,6 +344,7 @@ void AIABaseCharacter::ChangeCostumeMode()
         return;
 
     bAnimationInProgress = true;
+    bCanShot = false;
 
     if (PlayerSuitMode == EPlayerSuitMode::SpaceSuit)
     {
@@ -365,6 +366,7 @@ void AIABaseCharacter::OnDeath()
 {
     OnDeathCameraChange();
     bCanWearCostume = false;
+    bCanShot = false;
 
     UE_LOG(LogBaseCharacter, Display, TEXT("DEAD"));
 
@@ -379,6 +381,7 @@ void AIABaseCharacter::OnDeath()
 void AIABaseCharacter::OnDeathCameraChange()
 {
     bCanCameraMove = false;
+
     SpringArmComponent->TargetArmLength = 500;
 }
 //
@@ -386,7 +389,7 @@ void AIABaseCharacter::OnDeathCameraChange()
 // WEAPON
 void AIABaseCharacter::StartFire()
 {
-    if (bHasWeapon)
+    if (bHasWeapon && bCanShot)
     {
         bCanWearCostume = false;
         WeaponComponent->StartFire();
@@ -402,6 +405,7 @@ void AIABaseCharacter::StopFire()
 void AIABaseCharacter::WeaponMode()
 {
     bHasWeapon = !bHasWeapon;
+    bCanShot = false;
 
     if (bHasWeapon)
     {
@@ -491,14 +495,16 @@ void AIABaseCharacter::InitAnimations()
 void AIABaseCharacter::OnSuitChange(USkeletalMeshComponent* MeshComp)
 {
     bAnimationInProgress = false;
-    UE_LOG(LogBaseCharacter, Display, TEXT("Suit Change Anim Finished"));
+    bCanShot = true;
 }
 
 void AIABaseCharacter::OnWeaponEquiped(USkeletalMeshComponent* MeshComp)
 {
-    bAnimationInProgress = false;
 
     if (GetMesh() == MeshComp)
-        UE_LOG(LogBaseCharacter, Display, TEXT("Weapon Equiped"))
+    {
+        bAnimationInProgress = false;
+        bCanShot = true;
+    }
 }
 //

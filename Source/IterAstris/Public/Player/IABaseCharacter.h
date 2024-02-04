@@ -142,6 +142,7 @@ private:
     bool bCanWearCostume = true;
     bool bCanCameraMove = true;
     bool bHasWeapon = false;
+    bool bCanShot = false;
     bool bAnimationInProgress = false;
 
     UFUNCTION()
