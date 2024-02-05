@@ -2,6 +2,18 @@
 
 #include "UI/IAHUD.h"
 #include "Engine/Canvas.h"
+#include "Blueprint/UserWidget.h"
+
+void AIAHUD::BeginPlay()
+{
+    Super::BeginPlay();
+    auto PlayerHUDWidget = CreateWidget<UUserWidget>(GetWorld(), PlayerHUDWidgetClass);
+
+    if (PlayerHUDWidget)
+    {
+        PlayerHUDWidget->AddToViewport();
+    }
+}
 
 void AIAHUD::DrawHUD()
 {

@@ -49,7 +49,9 @@ public:
     FOnToxinLevelChanged OnToxinLevelChanged;
 
     FORCEINLINE bool IsInIntoxicationZone() const { return bIsInIntoxicationZone; };
-    FORCEINLINE float GetToxinLevel() const { return OwnToxinLvl; };
+
+    UFUNCTION(BlueprintCallable, Category = "Toxin")
+    float GetToxinLevel() const { return OwnToxinLvl; };
    
     virtual void SetCurrentZoneToxinLevel(float NewToxinLvl);
 

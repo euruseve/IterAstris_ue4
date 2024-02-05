@@ -129,9 +129,10 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     float GetMovementDirection() const;
 
-    UFUNCTION(BlueprintCallable, Category = "Movement")
+    UFUNCTION(BlueprintCallable, Category = "Player Mode")
     bool IsWeaponEquiped() const { return bHasWeapon; };
 
+    UFUNCTION(BlueprintCallable, Category = "Player Mode")
     bool IsPlayerInCostume() const { return PlayerSuitMode == EPlayerSuitMode::SpaceSuit; };
 
 private:

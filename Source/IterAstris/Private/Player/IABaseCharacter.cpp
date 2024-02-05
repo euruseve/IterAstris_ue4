@@ -209,7 +209,7 @@ void AIABaseCharacter::OnStopJumping()
 }
 //
 
-// CAMERA
+// CAMERA INPUT
 void AIABaseCharacter::LookUp(float Amount)
 {
     SetCameraViewSettings();
@@ -236,6 +236,7 @@ void AIABaseCharacter::TurnAroundRate(float Rate)
         AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
+// CAMERA ZOOM
 void AIABaseCharacter::CameraZoom(float Amount)
 {
     if (!bCanCameraMove)
@@ -286,6 +287,7 @@ void AIABaseCharacter::WeaponModeZoom(float Amount)
     SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
 }
 
+// CAMERA GLOBAL
 void AIABaseCharacter::ChangeCameraView()
 {
     if (!bCanCameraMove)
@@ -316,13 +318,19 @@ void AIABaseCharacter::SetCameraViewSettings()
     {
         bUseControllerRotationYaw = false;
         GetCharacterMovement()->bOrientRotationToMovement = true;
-        // GetMesh()->SetOwnerNoSee(false);
+        GetMesh()->SetOwnerNoSee(false);
     }
-    else if (CameraView == ECameraView::WeaponEquipedView || CameraView == ECameraView::FirstPersonView)
+    else if ( CameraView == ECameraView::FirstPersonView)
     {
         bUseControllerRotationYaw = true;
         GetCharacterMovement()->bOrientRotationToMovement = false;
-        // GetMesh()->SetOwnerNoSee(false);
+        GetMesh()->SetOwnerNoSee(true);
+    }
+    else if (CameraView == ECameraView::WeaponEquipedView)
+    {
+        bUseControllerRotationYaw = true;
+        GetCharacterMovement()->bOrientRotationToMovement = false;
+        GetMesh()->SetOwnerNoSee(false);
     }
 }
 
@@ -368,12 +376,12 @@ void AIABaseCharacter::OnDeath()
     bCanWearCostume = false;
     bCanShot = false;
 
-    UE_LOG(LogBaseCharacter, Display, TEXT("DEAD"));
+    // UE_LOG(LogBaseCharacter, Display, TEXT("DEAD"));
 
     PlayAnimMontage(PlayerAnims.DeathAnimMintage);
     GetCharacterMovement()->DisableMovement();
 
-    SetLifeSpan(10.f);
+    SetLifeSpan(5.f);
 
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
@@ -381,7 +389,6 @@ void AIABaseCharacter::OnDeath()
 void AIABaseCharacter::OnDeathCameraChange()
 {
     bCanCameraMove = false;
-
     SpringArmComponent->TargetArmLength = 500;
 }
 //
