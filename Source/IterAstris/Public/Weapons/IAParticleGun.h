@@ -24,6 +24,7 @@ protected:
 public:
     virtual void StartFire() override;
     virtual void StopFire() override;
+    virtual UTexture2D* GetCrossHair() const override { return WeaponCrossHair; } ;
 
 private:
     FTimerHandle ShotTimerHandle;

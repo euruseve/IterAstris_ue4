@@ -48,5 +48,5 @@ public:
     virtual void StartFire();
     virtual void StopFire();
 
-    UTexture2D* GetCrossHair() const { return WeaponCrossHair; };
+    virtual UTexture2D* GetCrossHair() const { return WeaponCrossHair; };
 };

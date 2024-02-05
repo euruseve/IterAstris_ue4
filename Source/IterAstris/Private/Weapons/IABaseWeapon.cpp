@@ -6,7 +6,6 @@
 #include "DrawDebugHelpers.h"
 #include "Gameframework/Character.h"
 #include "Gameframework/Controller.h"
-
 DEFINE_LOG_CATEGORY_STATIC(LogBaseWeapon, All, All);
 
 AIABaseWeapon::AIABaseWeapon()

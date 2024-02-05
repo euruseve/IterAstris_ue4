@@ -23,4 +23,5 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     bool IsWeaponOnPlayerEquiped() const;
+
 };

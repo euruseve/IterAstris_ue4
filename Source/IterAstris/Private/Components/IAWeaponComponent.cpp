@@ -10,7 +10,7 @@ void UIAWeaponComponent::BeginPlay()
 {
     Super::BeginPlay();
 
-    //SpawnWeapon("SpineWeaponSocket");
+    SpawnWeapon("SpineWeaponSocket");
 }
 
 void UIAWeaponComponent::SpawnWeapon(FName SocetName)
@@ -61,7 +61,7 @@ void UIAWeaponComponent::SetWeapon(FName SocketName)
 
 UTexture2D* UIAWeaponComponent::GetCrossHair() const
 {
-    if (! CurrentWeapon)
+    if (!CurrentWeapon)
     {
         return nullptr;
     }
