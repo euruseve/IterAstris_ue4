@@ -58,3 +58,13 @@ void UIAWeaponComponent::SetWeapon(FName SocketName)
 {
     SpawnWeapon(SocketName);
 }
+
+UTexture2D* UIAWeaponComponent::GetCrossHair() const
+{
+    if (! CurrentWeapon)
+    {
+        return nullptr;
+    }
+
+    return CurrentWeapon->GetCrossHair();
+}

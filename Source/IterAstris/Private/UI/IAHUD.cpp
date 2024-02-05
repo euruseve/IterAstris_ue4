@@ -18,7 +18,7 @@ void AIAHUD::BeginPlay()
 void AIAHUD::DrawHUD()
 {
     Super::DrawHUD();
-    DrawCrossHair();
+    //DrawCrossHair();
 }
 
 void AIAHUD::DrawCrossHair()

@@ -18,13 +18,16 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USkeletalMeshComponent* WeaponMesh;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
+    UTexture2D* WeaponCrossHair;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
     FName SocketName = "MuzzleSocket";
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
     float TraceMaxDistance = 1500.f;
 
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Weapon")
     float DamageAmount = 10.f;
 
     virtual void BeginPlay() override;
@@ -44,4 +47,6 @@ protected:
 public:
     virtual void StartFire();
     virtual void StopFire();
+
+    UTexture2D* GetCrossHair() const { return WeaponCrossHair; };
 };

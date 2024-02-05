@@ -26,6 +26,7 @@ public:
     void StartFire();
     void StopFire();
     void SetWeapon(FName SocketName);
+    UTexture2D* UIAWeaponComponent::GetCrossHair() const;
 
 private:
     UPROPERTY()

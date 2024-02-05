@@ -6,9 +6,6 @@
 #include "Blueprint/UserWidget.h"
 #include "IAPlayerHUDWidget.generated.h"
 
-/**
- *
- */
 UCLASS()
 class ITERASTRIS_API UIAPlayerHUDWidget : public UUserWidget
 {
@@ -20,4 +17,10 @@ public:
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     float GetHealth() const;
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    UTexture2D* GetCrossHairIcon() const;
+
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    bool IsWeaponOnPlayerEquiped() const;
 };
