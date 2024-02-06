@@ -2,9 +2,12 @@
 
 #include "Weapons/IAParticleGun.h"
 #include "DrawDebugHelpers.h"
+#include "Components/IAWeaponEnergyComponent.h"
 
 void AIAParticleGun::StartFire()
 {
+    Super::StartFire();
+
     MakeShot();
     GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &AIAParticleGun::MakeShot, TimeBetweenShots, true);
 }
@@ -17,6 +20,12 @@ void AIAParticleGun::MakeShot()
 {
     if (!GetWorld())
         return;
+
+    if (WeaponEnergyComponent->GetEnergyAmount() <= 0.f)
+        return;
+
+    WeaponEnergyComponent->ReduceEnergy();
+    WeaponEnergyComponent->Recharge();
 
     FVector TraceStart, TraceEnd;
 
@@ -36,6 +45,22 @@ void AIAParticleGun::MakeShot()
     {
         DrawDebugLine(GetWorld(), GetMuzzleWorldLocation(), TraceEnd, FColor::Yellow, false, 3.f, 0, 3.f);
     }
+}
+
+void AIAParticleGun::HideWeapon()
+{
+    // +2 sec needed cuz of "void AIABaseCharacter::UnequipWeapon()"
+
+    FTimerHandle TimerHandle;
+    GetWorldTimerManager().SetTimer(
+        TimerHandle, [this]() { WeaponMesh->SetOwnerNoSee(true); }, 3.5f, false);
+}
+
+void AIAParticleGun::ShowWeapon()
+{
+    FTimerHandle TimerHandle;
+    GetWorldTimerManager().SetTimer(
+        TimerHandle, [this]() { WeaponMesh->SetOwnerNoSee(false); }, 1.0f, false);
 }
 
 bool AIAParticleGun::GetTraceData(FVector& TraceStart, FVector& TraceEnd) const

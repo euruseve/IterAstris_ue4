@@ -6,41 +6,43 @@
 #include "DrawDebugHelpers.h"
 #include "Gameframework/Character.h"
 #include "Gameframework/Controller.h"
+#include "Components/IAWeaponEnergyComponent.h"
+
 DEFINE_LOG_CATEGORY_STATIC(LogBaseWeapon, All, All);
 
 AIABaseWeapon::AIABaseWeapon()
 {
     WeaponMesh = CreateDefaultSubobject<USkeletalMeshComponent>("SkeletalMeshComponent");
     SetRootComponent(WeaponMesh);
+
+    WeaponEnergyComponent = CreateDefaultSubobject<UIAWeaponEnergyComponent>("WeaponEnergyComponent");
 }
 
 void AIABaseWeapon::BeginPlay()
 {
     Super::BeginPlay();
+
     check(WeaponMesh);
+    check(WeaponEnergyComponent);
+
+    UE_LOG(LogBaseWeapon, Display, TEXT("Energy Amount: %f"), WeaponEnergyComponent->GetEnergyAmount());
+
     WeaponMesh->SetOwnerNoSee(true);
 }
 
-void AIABaseWeapon::StartFire() {}
-
+void AIABaseWeapon::StartFire()
+{
+    if (WeaponEnergyComponent->GetEnergyAmount() <= 0.f)
+        return;
+}
 void AIABaseWeapon::StopFire() {}
-void AIABaseWeapon::MakeShot() {}
-
-void AIABaseWeapon::HideWeapon()
+void AIABaseWeapon::MakeShot()
 {
-    // +2 sec needed cuz of "void AIABaseCharacter::UnequipWeapon()"
-
-    FTimerHandle TimerHandle;
-    GetWorldTimerManager().SetTimer(
-        TimerHandle, [this]() { WeaponMesh->SetOwnerNoSee(true); }, 3.5f, false);
+    if (WeaponEnergyComponent->GetEnergyAmount() <= 0.f)
+        return;
 }
-
-void AIABaseWeapon::ShowWeapon()
-{
-    FTimerHandle TimerHandle;
-    GetWorldTimerManager().SetTimer(
-        TimerHandle, [this]() { WeaponMesh->SetOwnerNoSee(false); }, 1.0f, false);
-}
+void AIABaseWeapon::HideWeapon() {}
+void AIABaseWeapon::ShowWeapon() {}
 
 APlayerController* AIABaseWeapon::GetPlayerController() const
 {

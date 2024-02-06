@@ -24,6 +24,8 @@ protected:
 public:
     virtual void StartFire() override;
     virtual void StopFire() override;
+    virtual void HideWeapon() override;
+    virtual void ShowWeapon() override;
     virtual UTexture2D* GetCrossHair() const override { return WeaponCrossHair; } ;
 
 private:

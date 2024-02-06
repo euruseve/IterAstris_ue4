@@ -47,7 +47,6 @@ void UIAPlayerIntoxicationComponent::HandleZoneStateChanged(bool InZone)
 
 void UIAPlayerIntoxicationComponent::UpdateToxinLevel()
 {
-
     GetWorld()->GetTimerManager().ClearTimer(ToxinUpdateTimerHandle);
 
     if (!bIsInIntoxicationZone || OwnToxinLvl != InCurrentZoneToxinLvl)

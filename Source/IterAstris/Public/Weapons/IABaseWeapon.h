@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "IABaseWeapon.generated.h"
 
+class UIAWeaponEnergyComponent;
+
 UCLASS()
 class ITERASTRIS_API AIABaseWeapon : public AActor
 {
@@ -17,6 +19,9 @@ public:
 protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USkeletalMeshComponent* WeaponMesh;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UIAWeaponEnergyComponent* WeaponEnergyComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "UI")
     UTexture2D* WeaponCrossHair;
@@ -44,7 +49,6 @@ protected:
     void MakeHit(FHitResult& HitResult, const FVector& TraceStart, const FVector& TraceEnd);
     void MakeDamage(const FHitResult& HitResult);
 
-
 public:
     virtual void StartFire();
     virtual void StopFire();
@@ -52,5 +56,5 @@ public:
     virtual void ShowWeapon();
 
     virtual UTexture2D* GetCrossHair() const { return WeaponCrossHair; };
-
+    virtual UIAWeaponEnergyComponent* GetEnergyComponent() const { return WeaponEnergyComponent; };
 };

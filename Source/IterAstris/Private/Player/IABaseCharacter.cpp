@@ -382,7 +382,6 @@ void AIABaseCharacter::OnDeath()
     GetCharacterMovement()->DisableMovement();
 
     SetLifeSpan(5.f);
-
     GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
 }
 

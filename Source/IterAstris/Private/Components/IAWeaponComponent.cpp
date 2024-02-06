@@ -3,6 +3,7 @@
 #include "Components/IAWeaponComponent.h"
 #include "Weapons/IABaseWeapon.h"
 #include "GameFramework/Character.h"
+#include "Components/IAWeaponEnergyComponent.h"
 
 UIAWeaponComponent::UIAWeaponComponent() {}
 
@@ -40,10 +41,11 @@ void UIAWeaponComponent::SpawnWeapon(FName SocetName)
 
 void UIAWeaponComponent::StartFire() 
 {
-    if (!CurrentWeapon)
+    if (!CurrentWeapon )
         return;
 
-    CurrentWeapon->StartFire();
+    if (CurrentWeapon->GetEnergyComponent()->GetEnergyAmount() > 0.f)
+        CurrentWeapon->StartFire();
 }
 
 void UIAWeaponComponent::StopFire()
