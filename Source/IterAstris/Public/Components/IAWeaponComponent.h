@@ -26,6 +26,9 @@ public:
     void StartFire();
     void StopFire();
     void SetWeapon(FName SocketName);
+    void HideWeapon();
+    void ShowWeapon();
+
     UTexture2D* GetCrossHair() const;
 
 private:

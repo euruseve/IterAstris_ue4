@@ -320,7 +320,7 @@ void AIABaseCharacter::SetCameraViewSettings()
         GetCharacterMovement()->bOrientRotationToMovement = true;
         GetMesh()->SetOwnerNoSee(false);
     }
-    else if ( CameraView == ECameraView::FirstPersonView)
+    else if (CameraView == ECameraView::FirstPersonView)
     {
         bUseControllerRotationYaw = true;
         GetCharacterMovement()->bOrientRotationToMovement = false;
@@ -436,6 +436,8 @@ void AIABaseCharacter::EquipWeapon()
 
     CameraView = ECameraView::WeaponEquipedView;
 
+    WeaponComponent->ShowWeapon();
+
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
         TimerHandle, [this]() { WeaponComponent->SetWeapon("RWeaponSocket"); }, 1.0f, false);
@@ -452,6 +454,8 @@ void AIABaseCharacter::UnequipWeapon()
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
         TimerHandle, [this]() { WeaponComponent->SetWeapon("SpineWeaponSocket"); }, 2.0f, false);
+
+    WeaponComponent->HideWeapon();
 }
 //
 

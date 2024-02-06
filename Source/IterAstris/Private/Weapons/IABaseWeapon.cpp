@@ -18,17 +18,29 @@ void AIABaseWeapon::BeginPlay()
 {
     Super::BeginPlay();
     check(WeaponMesh);
+    WeaponMesh->SetOwnerNoSee(true);
 }
 
-void AIABaseWeapon::StartFire() {
+void AIABaseWeapon::StartFire() {}
+
+void AIABaseWeapon::StopFire() {}
+void AIABaseWeapon::MakeShot() {}
+
+void AIABaseWeapon::HideWeapon()
+{
+    // +2 sec needed cuz of "void AIABaseCharacter::UnequipWeapon()"
+
+    FTimerHandle TimerHandle;
+    GetWorldTimerManager().SetTimer(
+        TimerHandle, [this]() { WeaponMesh->SetOwnerNoSee(true); }, 3.5f, false);
 }
 
-void AIABaseWeapon::StopFire() {
+void AIABaseWeapon::ShowWeapon()
+{
+    FTimerHandle TimerHandle;
+    GetWorldTimerManager().SetTimer(
+        TimerHandle, [this]() { WeaponMesh->SetOwnerNoSee(false); }, 1.0f, false);
 }
-void AIABaseWeapon::MakeShot() {
-    
-}
-
 
 APlayerController* AIABaseWeapon::GetPlayerController() const
 {
@@ -79,7 +91,7 @@ void AIABaseWeapon::MakeHit(FHitResult& HitResult, const FVector& TraceStart, co
         HitResult, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, CollisionParams);
 }
 
-void AIABaseWeapon::MakeDamage(const FHitResult& HitResult) 
+void AIABaseWeapon::MakeDamage(const FHitResult& HitResult)
 {
     const auto DamagedActor = HitResult.GetActor();
     if (!DamagedActor)

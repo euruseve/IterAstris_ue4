@@ -62,9 +62,17 @@ void UIAWeaponComponent::SetWeapon(FName SocketName)
 UTexture2D* UIAWeaponComponent::GetCrossHair() const
 {
     if (!CurrentWeapon)
-    {
         return nullptr;
-    }
 
     return CurrentWeapon->GetCrossHair();
+}
+
+void UIAWeaponComponent::HideWeapon() 
+{
+    CurrentWeapon->HideWeapon();
+}
+
+void UIAWeaponComponent::ShowWeapon() 
+{
+    CurrentWeapon->ShowWeapon();
 }
