@@ -23,6 +23,9 @@ protected:
     virtual void BeginPlay() override;
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetRechargeTimePercent() const;
+
     void StartFire();
     void StopFire();
     void SetWeapon(FName SocketName);

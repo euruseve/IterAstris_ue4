@@ -36,6 +36,11 @@ void AIABaseWeapon::MakeShot() {}
 void AIABaseWeapon::HideWeapon() {}
 void AIABaseWeapon::ShowWeapon() {}
 
+float AIABaseWeapon::GetRechargeTimePercent() const
+{
+    return WeaponEnergyComponent->GetRechargeTimePercent();
+};
+
 APlayerController* AIABaseWeapon::GetPlayerController() const
 {
     const auto Player = Cast<ACharacter>(GetOwner());

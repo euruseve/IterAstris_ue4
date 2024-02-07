@@ -24,9 +24,15 @@ protected:
     UPROPERTY(EditDefaultsOnly, Category = "Energy", meta = (ClampMin = "0"))
     float RechargeTime = 1.f;
 
+    UPROPERTY(EditDefaultsOnly, Category = "Energy", meta = (ClampMin = "0"))
+    float RateOfRecharging = 0.01f;
+
     virtual void BeginPlay() override;
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetRechargeTimePercent() const { return RechargingAmount / RechargeTime; };
+
     float GetEnergyAmount() const { return CurrentEnergyAmount; };
     float GetRechargeTime() const { return RechargeTime; };
     bool IsRecharged() const { return bIsRecharged; };
@@ -42,6 +48,5 @@ private:
 
     float CurrentEnergyAmount = 0.f;
 
-    void SetRecharge();
     void UdpateRecharge();
 };

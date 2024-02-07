@@ -34,6 +34,20 @@ float UIAPlayerHUDWidget::GetHealth() const
     return FMath::RoundToInt(Health->GetHealth());
 }
 
+float UIAPlayerHUDWidget::GetRechargePercent() const
+{
+    const auto Pawn = GetOwningPlayerPawn();
+    if (!Pawn)
+        return 0.f;
+
+    const auto Component = Pawn->GetComponentByClass(UIAWeaponComponent::StaticClass());
+    const auto Weapon = Cast<UIAWeaponComponent>(Component);
+    if (!Weapon)
+        return 0.f;
+
+    return Weapon->GetRechargeTimePercent();
+}
+
 UTexture2D* UIAPlayerHUDWidget::GetCrossHairIcon() const
 {
     const auto Pawn = GetOwningPlayerPawn();

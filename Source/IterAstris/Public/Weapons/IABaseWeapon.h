@@ -50,6 +50,9 @@ protected:
     void MakeDamage(const FHitResult& HitResult);
 
 public:
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetRechargeTimePercent() const;
+
     virtual void StartFire();
     virtual void StopFire();
     virtual void HideWeapon();

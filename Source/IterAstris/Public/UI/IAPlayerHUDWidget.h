@@ -16,7 +16,10 @@ public:
     float GetToxinLevel() const;
 
     UFUNCTION(BlueprintCallable, Category = "UI")
-    float GetHealth() const;
+    float GetHealth() const;    
+    
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetRechargePercent() const;
 
     UFUNCTION(BlueprintCallable, Category = "UI")
     UTexture2D* GetCrossHairIcon() const;

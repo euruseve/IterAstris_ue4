@@ -39,7 +39,15 @@ void UIAWeaponComponent::SpawnWeapon(FName SocetName)
     CurrentWeapon->SetOwner(Character);
 }
 
-void UIAWeaponComponent::StartFire() 
+float UIAWeaponComponent::GetRechargeTimePercent() const
+{
+    if (!CurrentWeapon)
+        return 0.f;
+
+    return CurrentWeapon->GetRechargeTimePercent();
+}
+
+void UIAWeaponComponent::StartFire()
 {
     if (!CurrentWeapon)
         return;
@@ -69,12 +77,12 @@ UTexture2D* UIAWeaponComponent::GetCrossHair() const
     return CurrentWeapon->GetCrossHair();
 }
 
-void UIAWeaponComponent::HideWeapon() 
+void UIAWeaponComponent::HideWeapon()
 {
     CurrentWeapon->HideWeapon();
 }
 
-void UIAWeaponComponent::ShowWeapon() 
+void UIAWeaponComponent::ShowWeapon()
 {
     CurrentWeapon->ShowWeapon();
 }
