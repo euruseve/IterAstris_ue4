@@ -41,7 +41,7 @@ void UIAWeaponComponent::SpawnWeapon(FName SocetName)
 
 void UIAWeaponComponent::StartFire() 
 {
-    if (!CurrentWeapon )
+    if (!CurrentWeapon)
         return;
 
     if (CurrentWeapon->GetEnergyComponent()->GetEnergyAmount() > 0.f)

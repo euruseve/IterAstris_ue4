@@ -15,21 +15,33 @@ public:
     UIAWeaponEnergyComponent();
 
 protected:
-    UPROPERTY(EditDefaultsOnly, Category = "Energy")
-    float EnergyAmount = 100.f;
+    UPROPERTY(EditDefaultsOnly, Category = "Energy", meta = (ClampMin = "0"))
+    float FullEnergyAmount = 100.f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Energy")
+    UPROPERTY(EditDefaultsOnly, Category = "Energy", meta = (ClampMin = "0"))
     float DecreaseEnergyAmount = 10.f;
 
-    UPROPERTY(EditDefaultsOnly, Category = "Energy", meta = (ClampMin = "1"))
+    UPROPERTY(EditDefaultsOnly, Category = "Energy", meta = (ClampMin = "0"))
     float RechargeTime = 1.f;
 
     virtual void BeginPlay() override;
 
 public:
-    float GetEnergyAmount() const { return EnergyAmount; };
+    float GetEnergyAmount() const { return CurrentEnergyAmount; };
     float GetRechargeTime() const { return RechargeTime; };
+    bool IsRecharged() const { return bIsRecharged; };
 
     void ReduceEnergy();
     void Recharge();
+
+private:
+    FTimerHandle TimerHandle;
+
+    bool bIsRecharged = true;
+    float RechargingAmount = 0.f;
+
+    float CurrentEnergyAmount = 0.f;
+
+    void SetRecharge();
+    void UdpateRecharge();
 };

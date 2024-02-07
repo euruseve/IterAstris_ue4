@@ -12,10 +12,7 @@ class ITERASTRIS_API AIAParticleGun : public AIABaseWeapon
     GENERATED_BODY()
 
 protected:
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
-    float TimeBetweenShots = .5f;
-
-    UPROPERTY(VisibleAnywhere, BlueprintReadWrite)
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Weapon", meta = (ClampMin = "0"))
     float BulletSpread = 1.5f;
 
     virtual void MakeShot() override;
@@ -28,6 +25,9 @@ public:
     virtual void ShowWeapon() override;
     virtual UTexture2D* GetCrossHair() const override { return WeaponCrossHair; } ;
 
+    virtual void BeginPlay() override;
+
 private:
     FTimerHandle ShotTimerHandle;
+    float TimeBetweenShots;
 };

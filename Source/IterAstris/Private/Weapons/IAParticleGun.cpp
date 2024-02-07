@@ -4,28 +4,34 @@
 #include "DrawDebugHelpers.h"
 #include "Components/IAWeaponEnergyComponent.h"
 
+void AIAParticleGun::BeginPlay()
+{
+    Super::BeginPlay();
+
+    TimeBetweenShots = WeaponEnergyComponent->GetRechargeTime();
+}
+
 void AIAParticleGun::StartFire()
-{
-    Super::StartFire();
-
-    MakeShot();
-    GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &AIAParticleGun::MakeShot, TimeBetweenShots, true);
-}
-
-void AIAParticleGun::StopFire()
-{
-    GetWorldTimerManager().ClearTimer(ShotTimerHandle);
-}
-void AIAParticleGun::MakeShot()
 {
     if (!GetWorld())
         return;
 
-    if (WeaponEnergyComponent->GetEnergyAmount() <= 0.f)
+    MakeShot();
+    //GetWorldTimerManager().SetTimer(ShotTimerHandle, this, &AIAParticleGun::MakeShot, TimeBetweenShots, true);
+}
+
+void AIAParticleGun::StopFire()
+{
+    //GetWorldTimerManager().ClearTimer(ShotTimerHandle);
+}
+
+void AIAParticleGun::MakeShot()
+{
+    if (WeaponEnergyComponent->GetEnergyAmount() <= 0.f || !WeaponEnergyComponent->IsRecharged())
         return;
 
-    WeaponEnergyComponent->ReduceEnergy();
     WeaponEnergyComponent->Recharge();
+    WeaponEnergyComponent->ReduceEnergy();
 
     FVector TraceStart, TraceEnd;
 

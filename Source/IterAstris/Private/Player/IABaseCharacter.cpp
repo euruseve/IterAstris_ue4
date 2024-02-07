@@ -398,6 +398,7 @@ void AIABaseCharacter::StartFire()
     if (bHasWeapon && bCanShot)
     {
         bCanWearCostume = false;
+        //PlayAnimMontage(PlayerAnims.ShootAnimMintage);
         WeaponComponent->StartFire();
     }
 }

@@ -30,17 +30,9 @@ void AIABaseWeapon::BeginPlay()
     WeaponMesh->SetOwnerNoSee(true);
 }
 
-void AIABaseWeapon::StartFire()
-{
-    if (WeaponEnergyComponent->GetEnergyAmount() <= 0.f)
-        return;
-}
+void AIABaseWeapon::StartFire() {}
 void AIABaseWeapon::StopFire() {}
-void AIABaseWeapon::MakeShot()
-{
-    if (WeaponEnergyComponent->GetEnergyAmount() <= 0.f)
-        return;
-}
+void AIABaseWeapon::MakeShot() {}
 void AIABaseWeapon::HideWeapon() {}
 void AIABaseWeapon::ShowWeapon() {}
 

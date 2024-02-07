@@ -57,6 +57,9 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
     UAnimMontage* UnequipWeaponAnimMintage;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* ShootAnimMintage;
 };
 
 UCLASS()
