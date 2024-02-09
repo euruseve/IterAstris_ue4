@@ -5,15 +5,11 @@
 #include "Components/IAHealthComponent.h"
 #include "Components/IAWeaponComponent.h"
 #include "Player/IABaseCharacter.h"
+#include "IAUtils.h"
 
 float UIAPlayerHUDWidget::GetToxinLevel() const
 {
-    const auto Player = GetOwningPlayerPawn();
-    if (!Player)
-        return 0.0f;
-
-    const auto Component = Player->GetComponentByClass(UIAIntoxicationComponent::StaticClass());
-    const auto Intoxication = Cast<UIAIntoxicationComponent>(Component);
+    const auto Intoxication = IAUtils::GetIAPlayerComponent<UIAIntoxicationComponent>(GetOwningPlayerPawn());
     if (!Intoxication)
         return 0.0f;
 
@@ -22,12 +18,7 @@ float UIAPlayerHUDWidget::GetToxinLevel() const
 
 float UIAPlayerHUDWidget::GetHealth() const
 {
-    const auto Player = GetOwningPlayerPawn();
-    if (!Player)
-        return 0.0f;
-
-    const auto Component = Player->GetComponentByClass(UIAHealthComponent::StaticClass());
-    const auto Health = Cast<UIAHealthComponent>(Component);
+    const auto Health = IAUtils::GetIAPlayerComponent<UIAHealthComponent>(GetOwningPlayerPawn());
     if (!Health)
         return 0.0f;
 
@@ -36,26 +27,27 @@ float UIAPlayerHUDWidget::GetHealth() const
 
 float UIAPlayerHUDWidget::GetRechargePercent() const
 {
-    const auto Pawn = GetOwningPlayerPawn();
-    if (!Pawn)
-        return 0.f;
-
-    const auto Component = Pawn->GetComponentByClass(UIAWeaponComponent::StaticClass());
-    const auto Weapon = Cast<UIAWeaponComponent>(Component);
+    const auto Weapon = IAUtils::GetIAPlayerComponent<UIAWeaponComponent>(GetOwningPlayerPawn());
     if (!Weapon)
         return 0.f;
 
     return Weapon->GetRechargeTimePercent();
 }
 
+
+float UIAPlayerHUDWidget::GetEnergyAmount() const
+{
+    const auto Weapon = IAUtils::GetIAPlayerComponent<UIAWeaponComponent>(GetOwningPlayerPawn());
+    if (!Weapon)
+        return 0.f;
+
+    return Weapon->GetEnergyAmount();
+}
+
 UTexture2D* UIAPlayerHUDWidget::GetCrossHairIcon() const
 {
-    const auto Pawn = GetOwningPlayerPawn();
-    if (!Pawn)
-        return nullptr;
+    const auto Weapon = IAUtils::GetIAPlayerComponent<UIAWeaponComponent>(GetOwningPlayerPawn());
 
-    const auto Component = Pawn->GetComponentByClass(UIAWeaponComponent::StaticClass());
-    const auto Weapon = Cast<UIAWeaponComponent>(Component);
     if (!Weapon)
         return nullptr;
 
@@ -64,11 +56,7 @@ UTexture2D* UIAPlayerHUDWidget::GetCrossHairIcon() const
 
 bool UIAPlayerHUDWidget::IsWeaponOnPlayerEquiped() const
 {
-    const auto Pawn = GetOwningPlayerPawn();
-    if (!Pawn)
-        return false;
-
-    const auto Player = Cast<AIABaseCharacter>(Pawn);
+    const auto Player = Cast<AIABaseCharacter>(GetOwningPlayerPawn());
 
     return Player && Player->IsWeaponEquiped();
 }

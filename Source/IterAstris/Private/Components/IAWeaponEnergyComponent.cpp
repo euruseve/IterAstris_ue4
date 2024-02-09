@@ -24,10 +24,11 @@ void UIAWeaponEnergyComponent::Recharge()
     bIsRecharged = false;
     RechargingAmount = 0.0f;
 
-    GetWorld()->GetTimerManager().SetTimer(TimerHandle, this, &UIAWeaponEnergyComponent::UdpateRecharge, RateOfRecharging, true);
+    GetWorld()->GetTimerManager().SetTimer(
+        TimerHandle, this, &UIAWeaponEnergyComponent::UdpateRecharge, RateOfRecharging, true);
 }
 
-void UIAWeaponEnergyComponent::UdpateRecharge() 
+void UIAWeaponEnergyComponent::UdpateRecharge()
 {
     RechargingAmount += RateOfRecharging;
     UE_LOG(LogWeaponEnergyComponent, Warning, TEXT("RechargingAmount %f"), RechargingAmount);
@@ -35,13 +36,14 @@ void UIAWeaponEnergyComponent::UdpateRecharge()
     {
         GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
         bIsRecharged = true;
+
         UE_LOG(LogWeaponEnergyComponent, Warning, TEXT("bIsRecharged %s"), (bIsRecharged ? TEXT("1") : TEXT("0")));
     }
 }
 
-
 void UIAWeaponEnergyComponent::ReduceEnergy()
 {
     CurrentEnergyAmount -= DecreaseEnergyAmount;
+
     UE_LOG(LogWeaponEnergyComponent, Warning, TEXT("CurrentEnergyAmount %f"), CurrentEnergyAmount);
 }

@@ -39,7 +39,12 @@ void AIABaseWeapon::ShowWeapon() {}
 float AIABaseWeapon::GetRechargeTimePercent() const
 {
     return WeaponEnergyComponent->GetRechargeTimePercent();
-};
+}
+
+float AIABaseWeapon::GetEnergyAmount() const
+{
+    return WeaponEnergyComponent->GetEnergyAmount();
+}
 
 APlayerController* AIABaseWeapon::GetPlayerController() const
 {

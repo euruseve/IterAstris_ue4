@@ -24,7 +24,10 @@ protected:
 
 public:
     UFUNCTION(BlueprintCallable, Category = "UI")
-    float GetRechargeTimePercent() const;
+    float GetRechargeTimePercent() const;    
+    
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetEnergyAmount() const;
 
     void StartFire();
     void StopFire();

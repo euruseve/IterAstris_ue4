@@ -33,7 +33,9 @@ public:
     UFUNCTION(BlueprintCallable, Category = "UI")
     float GetRechargeTimePercent() const { return RechargingAmount / RechargeTime; };
 
-    float GetEnergyAmount() const { return CurrentEnergyAmount; };
+    UFUNCTION(BlueprintCallable, Category = "UI")
+    float GetEnergyAmount() const { return CurrentEnergyAmount / FullEnergyAmount; };
+
     float GetRechargeTime() const { return RechargeTime; };
     bool IsRecharged() const { return bIsRecharged; };
 
