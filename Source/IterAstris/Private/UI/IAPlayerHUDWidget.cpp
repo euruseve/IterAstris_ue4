@@ -47,7 +47,6 @@ float UIAPlayerHUDWidget::GetEnergyAmount() const
 UTexture2D* UIAPlayerHUDWidget::GetCrossHairIcon() const
 {
     const auto Weapon = IAUtils::GetIAPlayerComponent<UIAWeaponComponent>(GetOwningPlayerPawn());
-
     if (!Weapon)
         return nullptr;
 
