@@ -34,7 +34,6 @@ float UIAPlayerHUDWidget::GetRechargePercent() const
     return Weapon->GetRechargeTimePercent();
 }
 
-
 float UIAPlayerHUDWidget::GetEnergyAmount() const
 {
     const auto Weapon = IAUtils::GetIAPlayerComponent<UIAWeaponComponent>(GetOwningPlayerPawn());

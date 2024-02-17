@@ -27,7 +27,7 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
 
     PlayerSuitMode = EPlayerSuitMode::WithoutSuit;
 
-    CameraView = ECameraView::ThirdPersonView;
+    CameraView = EViewMode::ThirdPersonView;
     BaseTurnRate = 45.f;
     DefaultTargetArmLenght = 300.f;
     CurrentTargetArmLenght = DefaultTargetArmLenght;
@@ -37,8 +37,11 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     SpringArmComponent->bUsePawnControlRotation = true;
     SpringArmComponent->TargetArmLength = DefaultTargetArmLenght;
 
-    CameraComponent = CreateDefaultSubobject<UCameraComponent>("CameraComponent");
-    CameraComponent->SetupAttachment(SpringArmComponent);
+    ThirdPersonCamera = CreateDefaultSubobject<UCameraComponent>("ThirdPersonCameraComponent");
+    ThirdPersonCamera->SetupAttachment(SpringArmComponent);
+
+    FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCameraComponent");
+    FirstPersonCamera->SetupAttachment(GetMesh(), "HeadSocket");
 
     PlayerHealthComponent = CreateDefaultSubobject<UIAPlayerHealthComponent>("PlayerHealthComponent");
 
@@ -141,7 +144,7 @@ void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis:
 {
     if (Controller && (Amount != 0.f) && !bAnimationInProgress)
     {
-        if (CameraView == ECameraView::ThirdPersonView)
+        if (CameraView == EViewMode::ThirdPersonView)
         {
             const FRotator Rotation = Controller->GetControlRotation();
             const FRotator YawRotation(0, Rotation.Yaw, 0);
@@ -149,7 +152,7 @@ void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis:
 
             AddMovementInput(MovementDirection, Amount);
         }
-        else if (CameraView == ECameraView::FirstPersonView || CameraView == ECameraView::WeaponEquipedView)
+        else if (CameraView == EViewMode::FirstPersonView || CameraView == EViewMode::WeaponEquipedView)
         {
             if (Direction == FVector::ForwardVector)
                 AddMovementInput(GetActorForwardVector(), Amount);
@@ -219,7 +222,7 @@ void AIABaseCharacter::LookUp(float Amount)
 
 void AIABaseCharacter::LookUpRate(float Rate)
 {
-    if (CameraView == ECameraView::ThirdPersonView)
+    if (CameraView == EViewMode::ThirdPersonView)
         AddControllerPitchInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
@@ -232,7 +235,7 @@ void AIABaseCharacter::TurnAround(float Amount)
 
 void AIABaseCharacter::TurnAroundRate(float Rate)
 {
-    if (CameraView == ECameraView::ThirdPersonView)
+    if (CameraView == EViewMode::ThirdPersonView)
         AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
 }
 
@@ -242,15 +245,15 @@ void AIABaseCharacter::CameraZoom(float Amount)
     if (!bCanCameraMove)
         return;
 
-    if (CameraView == ECameraView::ThirdPersonView)
+    if (CameraView == EViewMode::ThirdPersonView)
     {
         ThirdPersonZoom(Amount);
     }
-    else if (CameraView == ECameraView::FirstPersonView)
+    else if (CameraView == EViewMode::FirstPersonView)
     {
         FirstPersonZoom(Amount);
     }
-    else if (CameraView == ECameraView::WeaponEquipedView)
+    else if (CameraView == EViewMode::WeaponEquipedView)
     {
         WeaponModeZoom(Amount);
     }
@@ -293,19 +296,25 @@ void AIABaseCharacter::ChangeCameraView()
     if (!bCanCameraMove)
         return;
 
-    if (CameraView == ECameraView::FirstPersonView)
+    if (CameraView == EViewMode::FirstPersonView)
     {
-        CameraView = ECameraView::ThirdPersonView;
+        CameraView = EViewMode::ThirdPersonView;
+
+        FirstPersonCamera->SetActive(false);
+        ThirdPersonCamera->SetActive(true);
+
         SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
 
-        UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to TP"));
+        //UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to TP"));
     }
-    else if (CameraView == ECameraView::ThirdPersonView)
+    else if (CameraView == EViewMode::ThirdPersonView)
     {
-        CameraView = ECameraView::FirstPersonView;
-        SpringArmComponent->TargetArmLength = 0;
+        CameraView = EViewMode::FirstPersonView;
 
-        UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to FP"));
+        ThirdPersonCamera->SetActive(false);
+        FirstPersonCamera->SetActive(true);
+
+        //UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to FP"));
     }
 }
 
@@ -314,23 +323,15 @@ void AIABaseCharacter::SetCameraViewSettings()
     if (!bCanCameraMove)
         return;
 
-    if (CameraView == ECameraView::ThirdPersonView)
+    if (CameraView == EViewMode::ThirdPersonView)
     {
         bUseControllerRotationYaw = false;
         GetCharacterMovement()->bOrientRotationToMovement = true;
-        GetMesh()->SetOwnerNoSee(false);
     }
-    else if (CameraView == ECameraView::FirstPersonView)
+    else if (CameraView == EViewMode::FirstPersonView || CameraView == EViewMode::WeaponEquipedView)
     {
         bUseControllerRotationYaw = true;
         GetCharacterMovement()->bOrientRotationToMovement = false;
-        GetMesh()->SetOwnerNoSee(true);
-    }
-    else if (CameraView == ECameraView::WeaponEquipedView)
-    {
-        bUseControllerRotationYaw = true;
-        GetCharacterMovement()->bOrientRotationToMovement = false;
-        GetMesh()->SetOwnerNoSee(false);
     }
 }
 
@@ -434,7 +435,7 @@ void AIABaseCharacter::EquipWeapon()
 
     PlayAnimMontage(PlayerAnims.EquipWeaponAnimMintage);
 
-    CameraView = ECameraView::WeaponEquipedView;
+    CameraView = EViewMode::WeaponEquipedView;
 
     WeaponComponent->ShowWeapon();
 
@@ -449,7 +450,7 @@ void AIABaseCharacter::UnequipWeapon()
 
     PlayAnimMontage(PlayerAnims.UnequipWeaponAnimMintage);
 
-    CameraView = ECameraView::ThirdPersonView;
+    CameraView = EViewMode::ThirdPersonView;
 
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(

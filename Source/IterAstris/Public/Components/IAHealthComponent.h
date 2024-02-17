@@ -18,7 +18,7 @@ public:
     UIAHealthComponent();
 
 protected:
-    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0", ClampMax = "100"))
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Health", meta = (ClampMin = "0"))
     float MaxHealth = 100.f;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Health")

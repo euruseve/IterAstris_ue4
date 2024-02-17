@@ -15,9 +15,10 @@ class UIAWeaponComponent;
 
 
 UENUM(BlueprintType)
-enum class ECameraView : uint8
+enum class EViewMode : uint8
 {
     WeaponEquipedView UMETA(DisplayName = "Weapon Equiped"),
+    DialogueView UMETA(DisplayName = "Dialogue"),
     FirstPersonView UMETA(DisplayName = "First Person"),
     ThirdPersonView UMETA(DisplayName = "Third Person")
 };
@@ -84,7 +85,10 @@ protected:
     USpringArmComponent* SpringArmComponent;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
-    UCameraComponent* CameraComponent;
+    UCameraComponent* ThirdPersonCamera;
+
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+    UCameraComponent* FirstPersonCamera;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UIAPlayerHealthComponent* PlayerHealthComponent;
@@ -102,7 +106,7 @@ protected:
     UIAWeaponComponent* WeaponComponent;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
-    ECameraView CameraView;
+    EViewMode CameraView;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
     float BaseTurnRate;
