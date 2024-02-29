@@ -12,8 +12,10 @@
 #include "Components/Player/IAPlayerHealthComponent.h"
 #include "Components/Player/IAPlayerIntoxicationComponent.h"
 #include "Components/IAWeaponComponent.h"
+#include "Components/BoxComponent.h"
 #include "Animations/IASuitModeChangeAnimNotify.h"
 #include "Animations/IAWeaponEquipFinishAnimNotify.h"
+#include <Interfaces/InteractionInterface.h>
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
@@ -54,6 +56,9 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     IntoxicationTextComponent->SetupAttachment(GetRootComponent());
 
     WeaponComponent = CreateDefaultSubobject<UIAWeaponComponent>("WeaponComponent");
+
+    InteractionBox = CreateDefaultSubobject<UBoxComponent>("InteractionBoxComponent");
+    InteractionBox->SetupAttachment(GetRootComponent());
 }
 
 void AIABaseCharacter::BeginPlay()
@@ -73,6 +78,9 @@ void AIABaseCharacter::BeginPlay()
 
     LandedDelegate.AddDynamic(this, &AIABaseCharacter::OnGroundLanded);
 
+    InteractionBox->OnComponentBeginOverlap.AddDynamic(this, &AIABaseCharacter::OnInteractionBoxBeginOverlap);
+    InteractionBox->OnComponentEndOverlap.AddDynamic(this, &AIABaseCharacter::OnInteractionBoxEndOverlap);
+
     check(PlayerModels.BaseMesh);
     check(PlayerModels.SpaceSuitMesh);
 
@@ -84,6 +92,7 @@ void AIABaseCharacter::BeginPlay()
 void AIABaseCharacter::Tick(float DeltaTime)
 {
     Super::Tick(DeltaTime);
+    GetClosestInterctableObject();
 }
 
 void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -102,6 +111,8 @@ void AIABaseCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
     PlayerInputComponent->BindAction("ChangeCostumeMode", IE_Pressed, this, &AIABaseCharacter::ChangeCostumeMode);
 
     PlayerInputComponent->BindAction("EquipWeapon", IE_Pressed, this, &AIABaseCharacter::WeaponMode);
+
+    PlayerInputComponent->BindAction("Interaction", IE_Pressed, this, &AIABaseCharacter::OnInteract);
 
     PlayerInputComponent->BindAction("Fire", IE_Pressed, this, &AIABaseCharacter::StartFire);
     PlayerInputComponent->BindAction("Fire", IE_Released, this, &AIABaseCharacter::StopFire);
@@ -305,7 +316,7 @@ void AIABaseCharacter::ChangeCameraView()
 
         SpringArmComponent->TargetArmLength = CurrentTargetArmLenght;
 
-        //UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to TP"));
+        // UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to TP"));
     }
     else if (CameraView == EViewMode::ThirdPersonView)
     {
@@ -314,7 +325,7 @@ void AIABaseCharacter::ChangeCameraView()
         ThirdPersonCamera->SetActive(false);
         FirstPersonCamera->SetActive(true);
 
-        //UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to FP"));
+        // UE_LOG(LogBaseCharacter, Display, TEXT("CameraView have changed to FP"));
     }
 }
 
@@ -399,7 +410,7 @@ void AIABaseCharacter::StartFire()
     if (bHasWeapon && bCanShot)
     {
         bCanWearCostume = false;
-        //PlayAnimMontage(PlayerAnims.ShootAnimMintage);
+        // PlayAnimMontage(PlayerAnims.ShootAnimMintage);
         WeaponComponent->StartFire();
     }
 }
@@ -412,6 +423,9 @@ void AIABaseCharacter::StopFire()
 
 void AIABaseCharacter::WeaponMode()
 {
+    if (bAnimationInProgress)
+        return;
+
     bHasWeapon = !bHasWeapon;
     bCanShot = false;
 
@@ -441,7 +455,7 @@ void AIABaseCharacter::EquipWeapon()
 
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
-        TimerHandle, [this]() { WeaponComponent->SetWeapon("RWeaponSocket"); }, 1.0f, false);
+        TimerHandle, [this]() { WeaponComponent->SetWeapon("RWeaponSocket"); }, WeaponEquipTime, false);
 }
 
 void AIABaseCharacter::UnequipWeapon()
@@ -454,7 +468,7 @@ void AIABaseCharacter::UnequipWeapon()
 
     FTimerHandle TimerHandle;
     GetWorldTimerManager().SetTimer(
-        TimerHandle, [this]() { WeaponComponent->SetWeapon("SpineWeaponSocket"); }, 2.0f, false);
+        TimerHandle, [this]() { WeaponComponent->SetWeapon("SpineWeaponSocket"); }, WeaponUnequipTime, false);
 
     WeaponComponent->HideWeapon();
 }
@@ -518,5 +532,76 @@ void AIABaseCharacter::OnWeaponEquiped(USkeletalMeshComponent* MeshComp)
         bAnimationInProgress = false;
         bCanShot = true;
     }
+}
+//
+
+// INTERACTION
+void AIABaseCharacter::OnInteractionBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor,
+    UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+    Interactable = OtherActor;
+}
+
+void AIABaseCharacter::OnInteractionBoxEndOverlap(
+    UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+    if (Interactable)
+    {
+        IInteractionInterface::Execute_HideInteractionWidget(Interactable);
+        Interactable = nullptr;
+    }
+}
+
+void AIABaseCharacter::OnInteract()
+{
+    if (Interactable && bCanInteract)
+    {
+        if (Interactable->Implements<UInteractionInterface>() && !bAnimationInProgress)
+        {
+            if (bHasWeapon)
+            {
+                WeaponMode();
+
+                FTimerHandle TimerHandle;
+                GetWorldTimerManager().SetTimer(
+                    TimerHandle, [this]() { IInteractionInterface::Execute_Interact(Interactable); },
+                    WeaponUnequipTime + 1.f, false);
+            }
+            else
+                IInteractionInterface::Execute_Interact(Interactable);
+        }
+    }
+}
+void AIABaseCharacter::GetClosestInterctableObject()
+{
+    if (!Interactable)
+        return;
+
+    TArray<AActor*> OverlappingActors;
+
+    InteractionBox->GetOverlappingActors(OverlappingActors);
+
+    if (OverlappingActors.Num() == 0)
+    {
+        IInteractionInterface::Execute_HideInteractionWidget(Interactable);
+        Interactable = nullptr;
+        return;
+    }
+
+    AActor* ClosestActor = OverlappingActors[0];
+
+    for (auto CurrentActor : OverlappingActors)
+    {
+        if (GetDistanceTo(CurrentActor) < GetDistanceTo(ClosestActor))
+        {
+            ClosestActor = CurrentActor;
+        }
+    }
+
+    IInteractionInterface::Execute_HideInteractionWidget(Interactable);
+
+    Interactable = ClosestActor;
+
+    IInteractionInterface::Execute_ShowInteractionWidget(Interactable);
 }
 //

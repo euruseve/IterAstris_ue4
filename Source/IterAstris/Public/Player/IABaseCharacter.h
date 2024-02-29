@@ -12,6 +12,7 @@ class UTextRenderComponent;
 class UIAPlayerHealthComponent;
 class UIAPlayerIntoxicationComponent;
 class UIAWeaponComponent;
+class UBoxComponent;
 
 
 UENUM(BlueprintType)
@@ -117,6 +118,9 @@ protected:
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Camera Options")
     float CurrentTargetArmLenght;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Interection Box")
+    UBoxComponent* InteractionBox;
+
     UPROPERTY(EditDefaultsOnly, Category = "Damage")
     FVector2D LandedDamageVelocity{1200.f, 1500.f};
 
@@ -143,15 +147,28 @@ public:
     bool IsPlayerInCostume() const { return PlayerSuitMode == EPlayerSuitMode::SpaceSuit; };
 
 private:
-    AActor* SpawnedWeapon = nullptr;
-    FTimerHandle ChangeSocketTimerHandle;
-
     bool bWantsToRun = false;
     bool bCanWearCostume = true;
     bool bCanCameraMove = true;
     bool bHasWeapon = false;
     bool bCanShot = false;
+    bool bCanInteract = true;
     bool bAnimationInProgress = false;
+
+    float WeaponEquipTime = 1.f;
+    float WeaponUnequipTime = 2.f;
+
+    AActor* Interactable = nullptr; 
+    UFUNCTION()
+    void OnInteractionBoxBeginOverlap(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp,
+        int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+    UFUNCTION()
+    void OnInteractionBoxEndOverlap(
+        UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+    void OnInteract();
+    void GetClosestInterctableObject();
+
+    AActor* SpawnedWeapon = nullptr;
 
     UFUNCTION()
     void OnToxinLevelChanged(float OwnToxinLvl);

@@ -8,7 +8,7 @@ public class IterAstris : ModuleRules
     {
         PCHUsage = PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore" });
+        PublicDependencyModuleNames.AddRange(new string[] { "Core", "CoreUObject", "Engine", "InputCore", "UMG" });
 
         PrivateDependencyModuleNames.AddRange(new string[] { });
 
@@ -20,6 +20,8 @@ public class IterAstris : ModuleRules
             "IterAstris/Public/DamageZones",
             "IterAstris/Public/Weapons",
             "IterAstris/Public/UI",
+            "IterAstris/Public/Interfaces",
+            "IterAstris/Public/Objects/Interactable",
             "IterAstris/Public/DamageTypes"
         });
 
