@@ -547,7 +547,9 @@ void AIABaseCharacter::OnInteractionBoxEndOverlap(
 {
     if (Interactable)
     {
-        IInteractionInterface::Execute_HideInteractionWidget(Interactable);
+        if (Interactable->Implements<UInteractionInterface>())
+            IInteractionInterface::Execute_HideInteractionWidget(Interactable);
+
         Interactable = nullptr;
     }
 }
@@ -598,10 +600,13 @@ void AIABaseCharacter::GetClosestInterctableObject()
         }
     }
 
-    IInteractionInterface::Execute_HideInteractionWidget(Interactable);
+    if (Interactable->Implements<UInteractionInterface>())
+    {
+        IInteractionInterface::Execute_HideInteractionWidget(Interactable);
 
-    Interactable = ClosestActor;
+        Interactable = ClosestActor;
 
-    IInteractionInterface::Execute_ShowInteractionWidget(Interactable);
+        IInteractionInterface::Execute_ShowInteractionWidget(Interactable);
+    }
 }
 //
