@@ -39,6 +39,14 @@ void UIAWeaponComponent::SpawnWeapon(FName SocetName)
     CurrentWeapon->SetOwner(Character);
 }
 
+float UIAWeaponComponent::GetCurrentEnergy() const
+{
+    if (!CurrentWeapon)
+        return 0.f;
+
+    return CurrentWeapon->GetEnergyComponent()->GetCurrentEnergy();
+}
+
 void UIAWeaponComponent::StartFire()
 {
     if (!CurrentWeapon)
@@ -74,7 +82,23 @@ float UIAWeaponComponent::GetEnergyAmount() const
     if (!CurrentWeapon)
         return 0.f;
 
-    return CurrentWeapon->GetEnergyAmount();
+    return CurrentWeapon->GetEnergyComponent()->GetEnergyAmount();
+}
+
+float UIAWeaponComponent::GetFullEnergy() const
+{
+    if (!CurrentWeapon)
+        return 0.f;
+
+    return CurrentWeapon->GetEnergyComponent()->GetFullEnergy();
+}
+
+void UIAWeaponComponent::SetEnergy(float EnergyCount) 
+{
+    if (!CurrentWeapon)
+        return;
+
+    CurrentWeapon->GetEnergyComponent()->SetEnergy(EnergyCount);
 }
 
 float UIAWeaponComponent::GetRechargeTimePercent() const
@@ -82,7 +106,7 @@ float UIAWeaponComponent::GetRechargeTimePercent() const
     if (!CurrentWeapon)
         return 0.f;
 
-    return CurrentWeapon->GetRechargeTimePercent();
+    return CurrentWeapon->GetEnergyComponent()->GetRechargeTimePercent();
 }
 
 void UIAWeaponComponent::HideWeapon()

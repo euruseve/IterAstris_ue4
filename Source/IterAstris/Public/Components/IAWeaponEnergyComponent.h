@@ -30,11 +30,20 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "UI")
+    UFUNCTION(BlueprintCallable, Category = "Energy")
     float GetRechargeTimePercent() const { return RechargingAmount / RechargeTime; };
 
-    UFUNCTION(BlueprintCallable, Category = "UI")
+    UFUNCTION(BlueprintCallable, Category = "Energy")
     float GetEnergyAmount() const { return CurrentEnergyAmount / FullEnergyAmount; };
+    
+    UFUNCTION(BlueprintCallable, Category = "Energy")
+    float GetCurrentEnergy() const { return CurrentEnergyAmount; };
+
+    UFUNCTION(BlueprintCallable, Category = "Energy")
+    void SetEnergy(float EnergyCount) { CurrentEnergyAmount = EnergyCount; };
+
+    UFUNCTION(BlueprintCallable, Category = "Energy")
+    float GetFullEnergy() const { return FullEnergyAmount; };
 
     float GetRechargeTime() const { return RechargeTime; };
     bool IsRecharged() const { return bIsRecharged; };

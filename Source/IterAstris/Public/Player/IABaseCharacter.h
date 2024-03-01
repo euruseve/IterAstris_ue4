@@ -134,17 +134,29 @@ public:
 
     virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+
     UFUNCTION(BlueprintCallable, Category = "Movement")
     bool IsRunning() const; 
     
     UFUNCTION(BlueprintCallable, Category = "Movement")
     float GetMovementDirection() const;
 
+
     UFUNCTION(BlueprintCallable, Category = "Player Mode")
-    bool IsWeaponEquiped() const { return bHasWeapon; };
+    bool IsWeaponEquiped() const { return bHasWeapon; };    
 
     UFUNCTION(BlueprintCallable, Category = "Player Mode")
     bool IsPlayerInCostume() const { return PlayerSuitMode == EPlayerSuitMode::SpaceSuit; };
+
+
+    UFUNCTION(BlueprintCallable, Category = "Weapon Charge")
+    bool IsWeaponCharging() const { return bIsWeaponCharging; }; 
+    
+    UFUNCTION(BlueprintCallable, Category = "Weapon Charge")
+    void SetWeaponCharging(bool Charging) { bIsWeaponCharging = Charging; };
+
+    UFUNCTION(BlueprintCallable, Category = "Component")
+    UIAWeaponComponent* GetWeaponComponent() { return WeaponComponent; };
 
 private:
     bool bWantsToRun = false;
@@ -154,6 +166,7 @@ private:
     bool bCanShot = false;
     bool bCanInteract = true;
     bool bAnimationInProgress = false;
+    bool bIsWeaponCharging = false;
 
     float WeaponEquipTime = 1.f;
     float WeaponUnequipTime = 2.f;

@@ -23,6 +23,7 @@ public:
     virtual void ShowInteractionWidget_Implementation() override;
     virtual void HideInteractionWidget_Implementation() override;
 
+
 private:
     UPROPERTY(EditDefaultsOnly)
     USceneComponent* _Root;

@@ -407,7 +407,7 @@ void AIABaseCharacter::OnDeathCameraChange()
 // WEAPON
 void AIABaseCharacter::StartFire()
 {
-    if (bHasWeapon && bCanShot)
+    if (bHasWeapon && bCanShot )
     {
         bCanWearCostume = false;
         // PlayAnimMontage(PlayerAnims.ShootAnimMintage);
@@ -423,8 +423,11 @@ void AIABaseCharacter::StopFire()
 
 void AIABaseCharacter::WeaponMode()
 {
-    if (bAnimationInProgress)
+    if (bAnimationInProgress || bIsWeaponCharging)
         return;
+
+    if (CameraView == EViewMode::FirstPersonView)
+        ChangeCameraView();
 
     bHasWeapon = !bHasWeapon;
     bCanShot = false;
@@ -472,6 +475,7 @@ void AIABaseCharacter::UnequipWeapon()
 
     WeaponComponent->HideWeapon();
 }
+
 //
 
 // NOTIFIES
@@ -574,6 +578,7 @@ void AIABaseCharacter::OnInteract()
         }
     }
 }
+
 void AIABaseCharacter::GetClosestInterctableObject()
 {
     if (!Interactable)

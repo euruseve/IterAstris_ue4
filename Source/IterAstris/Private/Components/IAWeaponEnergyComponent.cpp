@@ -31,15 +31,16 @@ void UIAWeaponEnergyComponent::Recharge()
 void UIAWeaponEnergyComponent::UdpateRecharge()
 {
     RechargingAmount += RateOfRecharging;
-    UE_LOG(LogWeaponEnergyComponent, Warning, TEXT("RechargingAmount %f"), RechargingAmount);
+    //UE_LOG(LogWeaponEnergyComponent, Warning, TEXT("RechargingAmount %f"), RechargingAmount);
     if (RechargingAmount >= RechargeTime)
     {
         GetWorld()->GetTimerManager().ClearTimer(TimerHandle);
         bIsRecharged = true;
 
-        UE_LOG(LogWeaponEnergyComponent, Warning, TEXT("bIsRecharged %s"), (bIsRecharged ? TEXT("1") : TEXT("0")));
+        //UE_LOG(LogWeaponEnergyComponent, Warning, TEXT("bIsRecharged %s"), (bIsRecharged ? TEXT("1") : TEXT("0")));
     }
 }
+
 
 void UIAWeaponEnergyComponent::ReduceEnergy()
 {

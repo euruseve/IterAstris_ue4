@@ -23,11 +23,20 @@ protected:
     virtual void BeginPlay() override;
 
 public:
-    UFUNCTION(BlueprintCallable, Category = "UI")
-    float GetRechargeTimePercent() const;    
-    
-    UFUNCTION(BlueprintCallable, Category = "UI")
+    UFUNCTION(BlueprintCallable, Category = "Energy")
+    float GetRechargeTimePercent() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Energy")
     float GetEnergyAmount() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Energy")
+    float GetFullEnergy() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Energy")
+    float GetCurrentEnergy() const;
+
+    UFUNCTION(BlueprintCallable, Category = "Energy")
+    void SetEnergy(float EnergyCount);
 
     void StartFire();
     void StopFire();
