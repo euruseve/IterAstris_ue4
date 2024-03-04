@@ -89,7 +89,10 @@ protected:
     UCameraComponent* ThirdPersonCamera;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
-    UCameraComponent* FirstPersonCamera;
+    UCameraComponent* FirstPersonCamera; 
+    
+    UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Components")
+    UCameraComponent* DialogueCamera;
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UIAPlayerHealthComponent* PlayerHealthComponent;

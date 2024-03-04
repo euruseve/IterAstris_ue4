@@ -45,6 +45,9 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     FirstPersonCamera = CreateDefaultSubobject<UCameraComponent>("FirstPersonCameraComponent");
     FirstPersonCamera->SetupAttachment(GetMesh(), "HeadSocket");
 
+    DialogueCamera = CreateDefaultSubobject<UCameraComponent>("DialogueCameraComponent");
+    DialogueCamera->SetupAttachment(GetRootComponent());
+
     PlayerHealthComponent = CreateDefaultSubobject<UIAPlayerHealthComponent>("PlayerHealthComponent");
 
     HealthTextComponent = CreateDefaultSubobject<UTextRenderComponent>("HealthText");
