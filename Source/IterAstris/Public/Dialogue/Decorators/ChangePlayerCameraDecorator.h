@@ -19,6 +19,8 @@ public:
     virtual void CleanupDecorator_Implementation() override;
 
 private:
+    APawn* PlayerPawn = nullptr;
+
     class UCameraComponent* PlayerDefaultCamera;
     class UCameraComponent* PlayerDialogueCamera;
     class UCameraComponent* PlayerFirstLookCamera;

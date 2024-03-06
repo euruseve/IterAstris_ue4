@@ -10,7 +10,7 @@ void UChangePlayerCameraDecorator::InitializeDecorator_Implementation(
 {
     Super::InitializeDecorator_Implementation(World, OwningParticipant);
 
-    const auto PlayerPawn = UGameplayStatics::GetPlayerPawn(World, 0);
+    PlayerPawn = UGameplayStatics::GetPlayerPawn(World, 0);
 
     const auto Camera1 = PlayerPawn->GetComponentsByTag(UCameraComponent::StaticClass(), FName("DefaultCamera"));
     const auto Camera2 = PlayerPawn->GetComponentsByTag(UCameraComponent::StaticClass(), FName("DialogueCamera"));
@@ -23,19 +23,26 @@ void UChangePlayerCameraDecorator::InitializeDecorator_Implementation(
 
 bool UChangePlayerCameraDecorator::ValidateDecorator_Implementation(TArray<FText>& ValidationMessages)
 {
-    ChangeCamera(true);
+    if ((PlayerDefaultCamera && PlayerDialogueCamera && PlayerFirstLookCamera) && GetWorld())
+        ChangeCamera(true);
+
     return Super::ValidateDecorator_Implementation(ValidationMessages);
 }
 
 void UChangePlayerCameraDecorator::CleanupDecorator_Implementation() 
 {
+    if ((PlayerDefaultCamera && PlayerDialogueCamera && PlayerFirstLookCamera))
+        ChangeCamera(false);
+ 
     Super::CleanupDecorator_Implementation();
-    ChangeCamera(false);
 }
 
 void UChangePlayerCameraDecorator::ChangeCamera(bool IsDialogStarted) 
 {
-    PlayerFirstLookCamera->SetActive(false);
-    PlayerDefaultCamera->SetActive(!IsDialogStarted);
-    PlayerDialogueCamera->SetActive(IsDialogStarted);
+    if ((PlayerDefaultCamera && PlayerDialogueCamera && PlayerFirstLookCamera))
+    {
+        PlayerFirstLookCamera->SetActive(false);
+        PlayerDefaultCamera->SetActive(!IsDialogStarted);
+        PlayerDialogueCamera->SetActive(IsDialogStarted);
+    }
 }

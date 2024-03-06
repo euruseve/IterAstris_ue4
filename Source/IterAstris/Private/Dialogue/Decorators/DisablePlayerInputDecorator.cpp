@@ -13,11 +13,13 @@ void UDisablePlayerInputDecorator::InitializeDecorator_Implementation(
 
 bool UDisablePlayerInputDecorator::ValidateDecorator_Implementation(TArray<FText>& ValidationMessages)
 {
-    PlayerPawn->DisableInput(PlayerController);
+    if (PlayerPawn && GetWorld())
+        PlayerPawn->DisableInput(PlayerController);
+
     return Super::ValidateDecorator_Implementation(ValidationMessages);
 }
 
-void UDisablePlayerInputDecorator::CleanupDecorator_Implementation() 
+void UDisablePlayerInputDecorator::CleanupDecorator_Implementation()
 {
     Super::CleanupDecorator_Implementation();
     PlayerPawn->EnableInput(PlayerController);
