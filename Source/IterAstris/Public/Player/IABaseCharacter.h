@@ -62,6 +62,9 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category = "Animation")
     UAnimMontage* ShootAnimMintage;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Animation")
+    UAnimMontage* ComputerInteractAnimMintage;
 };
 
 UCLASS()
@@ -144,13 +147,20 @@ public:
     UFUNCTION(BlueprintCallable, Category = "Movement")
     float GetMovementDirection() const;
 
+    UFUNCTION(BlueprintCallable, Category = "Animations")
+    void PlayAnimation(UAnimMontage* Animation); 
+    
+    UFUNCTION(BlueprintCallable, Category = "Helpers")
+    void SetAnimationProgress(bool IsAnimationInProgress);
+
+    UFUNCTION(BlueprintCallable, Category = "Animations|Helpers")
+    FPlayerAnimations GetAnimations() const { return PlayerAnims; };
 
     UFUNCTION(BlueprintCallable, Category = "Player Mode")
     bool IsWeaponEquiped() const { return bHasWeapon; };    
 
     UFUNCTION(BlueprintCallable, Category = "Player Mode")
     bool IsPlayerInCostume() const { return PlayerSuitMode == EPlayerSuitMode::SpaceSuit; };
-
 
     UFUNCTION(BlueprintCallable, Category = "Weapon Charge")
     bool IsWeaponCharging() const { return bIsWeaponCharging; }; 

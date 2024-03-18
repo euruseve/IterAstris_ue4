@@ -226,6 +226,17 @@ void AIABaseCharacter::OnStopJumping()
 }
 //
 
+void AIABaseCharacter::PlayAnimation(UAnimMontage* Animation)
+{
+    PlayAnimMontage(Animation);
+}
+
+void AIABaseCharacter::SetAnimationProgress(bool IsAnimationInProgress) 
+{
+    bAnimationInProgress = IsAnimationInProgress;
+    bCanShot = !IsAnimationInProgress;
+}
+
 // CAMERA INPUT
 void AIABaseCharacter::LookUp(float Amount)
 {
