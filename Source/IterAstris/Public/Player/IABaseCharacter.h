@@ -13,6 +13,7 @@ class UIAPlayerHealthComponent;
 class UIAPlayerIntoxicationComponent;
 class UIAWeaponComponent;
 class UBoxComponent;
+class UAudioComponent;
 
 
 UENUM(BlueprintType)
@@ -41,6 +42,18 @@ public:
 
     UPROPERTY(EditDefaultsOnly, Category = "Models")
     USkeletalMesh* SpaceSuitMesh;
+};
+
+USTRUCT(BlueprintType)
+struct FPlayerSoundEffects
+{
+    GENERATED_BODY()
+public:
+    UPROPERTY(EditDefaultsOnly, Category = "Sound")
+    USoundBase* Walk;
+
+    UPROPERTY(EditDefaultsOnly, Category = "Sound")
+    USoundBase* Run;
 };
 
 USTRUCT(BlueprintType)
@@ -111,6 +124,9 @@ protected:
 
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     UIAWeaponComponent* WeaponComponent;
+
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
+    UAudioComponent* SoundEffect;
 
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Camera Options")
     EViewMode CameraView;

@@ -1,6 +1,9 @@
 ﻿// Iter Astris. All Rights Reserved.
 
 #include "Player/IABaseCharacter.h"
+
+//#include "Kismet/GameplayStatics.h"
+
 #include "Camera/CameraComponent.h"
 #include "Components/InputComponent.h"
 #include "Components/CapsuleComponent.h"
@@ -13,6 +16,7 @@
 #include "Components/Player/IAPlayerIntoxicationComponent.h"
 #include "Components/IAWeaponComponent.h"
 #include "Components/BoxComponent.h"
+#include "Components/AudioComponent.h"
 #include "Animations/IASuitModeChangeAnimNotify.h"
 #include "Animations/IAWeaponEquipFinishAnimNotify.h"
 #include <Interfaces/InteractionInterface.h>
@@ -58,6 +62,9 @@ AIABaseCharacter::AIABaseCharacter(const FObjectInitializer& ObjInit)
     IntoxicationTextComponent = CreateDefaultSubobject<UTextRenderComponent>("IntoxicationText");
     IntoxicationTextComponent->SetupAttachment(GetRootComponent());
 
+    SoundEffect = CreateDefaultSubobject<UAudioComponent>("AudioComponent");
+    SoundEffect->SetupAttachment(GetRootComponent());
+
     WeaponComponent = CreateDefaultSubobject<UIAWeaponComponent>("WeaponComponent");
 
     InteractionBox = CreateDefaultSubobject<UBoxComponent>("InteractionBoxComponent");
@@ -85,7 +92,7 @@ void AIABaseCharacter::BeginPlay()
     InteractionBox->OnComponentEndOverlap.AddDynamic(this, &AIABaseCharacter::OnInteractionBoxEndOverlap);
 
     check(PlayerModels.BaseMesh);
-    check(PlayerModels.SpaceSuitMesh);
+    check(PlayerModels.SpaceSuitMesh);    
 
     GetMesh()->SetSkeletalMesh(PlayerModels.BaseMesh);
 
@@ -158,6 +165,7 @@ void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis:
 {
     if (Controller && (Amount != 0.f) && !bAnimationInProgress)
     {
+
         if (CameraView == EViewMode::ThirdPersonView)
         {
             const FRotator Rotation = Controller->GetControlRotation();
@@ -179,6 +187,7 @@ void AIABaseCharacter::Move(float Amount, const FVector& Direction, const EAxis:
 void AIABaseCharacter::MoveForward(float Amount)
 {
     Move(Amount, FVector::ForwardVector, EAxis::X);
+
 }
 
 void AIABaseCharacter::MoveRight(float Amount)
