@@ -98,6 +98,9 @@ protected:
     UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Player Mode")
     EPlayerSuitMode PlayerSuitMode;
 
+    UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Death")
+    TSubclassOf<UUserWidget> DeathWidget;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Components")
     USpringArmComponent* SpringArmComponent;
 

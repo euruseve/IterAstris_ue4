@@ -20,6 +20,8 @@
 #include "Animations/IASuitModeChangeAnimNotify.h"
 #include "Animations/IAWeaponEquipFinishAnimNotify.h"
 #include <Interfaces/InteractionInterface.h>
+#include <Components/WidgetComponent.h>
+#include <Kismet/GameplayStatics.h>
 
 DEFINE_LOG_CATEGORY_STATIC(LogBaseCharacter, All, All);
 
@@ -415,9 +417,13 @@ void AIABaseCharacter::OnDeath()
 
     PlayAnimMontage(PlayerAnims.DeathAnimMintage);
     GetCharacterMovement()->DisableMovement();
+    
+    UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetInputMode(FInputModeUIOnly{});
+    UGameplayStatics::GetPlayerController(GetWorld(), 0)->SetShowMouseCursor(true);
 
-    SetLifeSpan(5.f);
-    GetCapsuleComponent()->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore);
+    UUserWidget* Widget = CreateWidget<UUserWidget>(GetWorld(), DeathWidget);
+    if (Widget)
+        Widget->AddToViewport();
 }
 
 void AIABaseCharacter::OnDeathCameraChange()
