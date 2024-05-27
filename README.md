@@ -4,7 +4,7 @@ This game was created as part of my Doploma work.
 
 It includes:
 - few types of camera view
-- diff player controlls anim
+- diff player controlls
 - intoxication mechanic (zones and stat like stamina)
 - health <-> death
 - weapon and shooting
